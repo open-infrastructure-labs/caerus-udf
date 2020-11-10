@@ -1,0 +1,255 @@
+openapi: 3.0.0
+info:
+  title: Caerus UDF Registry APIs
+  description: This is the API definition of the Caerus UDF Registry.  
+  version: 1.0.0
+  termsOfService: http://localhost:8082/terms
+  contact: 
+    name: Yong Wang  
+    email: yong.wang@futurewei.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+paths:
+  /udf:
+    get:
+      summary: Fetch all UDFs' configs from the system that the user has access to
+      description: Returns all UDFs from the system that the user has access to
+      operationId: fetchAllUdf
+      parameters:
+        - name: tags
+          in: query
+          description: tags to filter by
+          required: false
+          style: form
+          schema:
+            type: array
+            items:
+              type: string
+        - name: limit
+          in: query
+          description: maximum number of results to return
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: udfs response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Udf'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new udf to the UDF Registry, input form with a json config and a MultipartFile
+      description: Add a new udf to the registry
+      operationId: saveUdf
+      requestBody:
+        content: 
+          multipart/form-data: 
+            schema:          
+              type: object
+              properties:      
+                newUdfJson:    
+                  type: string
+                  format: json
+                uploadFile: 
+                  type: object
+                  format: binary
+      responses:
+        '200':
+          description: successful operation
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /udf/{id}:
+    get:
+      summary: fetchs an UDF's config based on a single uuid 
+      description: Returns an UDFs based on a single ID
+      operationId: getUdfbyId
+      parameters:
+        - name: id
+          in: path
+          description: ID of UDF to fetch
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: udf response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Udf'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: deletes a single udf based on the uuid supplied
+      description: deletes a single udf based on the ID supplied
+      operationId: deleteUdfbyId
+      parameters:
+        - name: id
+          in: path
+          description: ID of udf to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: udf deleted
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: update an existing udf config. Send partial or complete json.
+      description: update an existing udf. Send partial or complete json.
+      operationId: updateUdfConfig
+      parameters:
+        - name: id
+          in: path
+          description: ID of udf to update
+          required: true
+          explode: true
+          schema:
+            type: string
+      requestBody:
+        description: Send partial or complete json.
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Udf'
+                properties:      
+                  udfConfig:    
+                    type: string
+                    format: json
+                required:
+                  - udfConfig
+      responses:
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: udf not found
+        "405":
+          description: Validation exception
+  '/udf/{id}/executable':
+    get:
+      summary: downloads an executable based on uuid
+      operationId: getFileById
+      parameters:
+        - name: id
+          in: path
+          description: ID of udf app code to download
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+  '/udf/{id}/updateExecutable':
+    put:
+      summary: updates an executable based on the uuid of an existing UDF
+      operationId: updateUdfExecutable
+      parameters:
+        - name: id
+          in: path
+          description: ID of udf app code to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content: 
+          multipart/form-data: 
+            schema:          
+              type: object
+              properties:      
+                uploadFile: 
+                  type: object
+                  format: binary
+      responses:
+        '200':
+          description: successful operation
+components:
+  schemas:
+    Udf:
+      description: User Define Function and its properties
+      properties:
+        id:
+          type: string
+          description: System generated unique identifier
+        name:
+          type: string
+        package:
+          type: string
+          enum: [function, docker]
+          description: can support 'docker' (packaging with all dependencies in a docker) or 'function' (need following dependencies defined in the schema)
+        interfaceVersion:
+          type: number
+          example: 1.0
+        language:
+          type: string
+          example: 'Java'
+        languageVersion:
+          type: number
+          example: 1.8
+        main:
+          type: string
+          example: 'main_class_name'
+        fileName:
+          type: string
+          example: 'udf1.jar'
+    NewUdf:
+      description: User Define Function and its properties
+      properties:
+        name:
+          type: string
+        package:
+          type: string
+          enum: [function, docker]
+          description: can support 'docker' (packaging with all dependencies in a docker) or 'function' (need following dependencies defined in the schema)
+        interfaceVersion:
+          type: number
+          example: 1.0
+        language:
+          type: string
+          example: 'Java'
+        languageVersion:
+          type: number
+          example: 1.8
+        main:
+          type: string
+          example: 'main_class_name'
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+

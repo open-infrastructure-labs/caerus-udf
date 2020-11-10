@@ -1,0 +1,374 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Caerus UDF Registry APIs",
+    "description": "This is the API definition of the Caerus UDF Registry.",
+    "version": "1.0.0",
+    "termsOfService": "http://localhost:8082/terms",
+    "contact": {
+      "name": "Yong Wang",
+      "email": "yong.wang@futurewei.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "externalDocs": {
+    "description": "Find out more about Swagger",
+    "url": "http://swagger.io"
+  },
+  "paths": {
+    "/udf": {
+      "get": {
+        "description": "Returns all UDFss from the system that the user has access to\n",
+        "operationId": "list_udfs",
+        "parameters": [
+          {
+            "name": "tags",
+            "in": "query",
+            "description": "tags to filter by",
+            "required": false,
+            "style": "form",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximum number of results to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "udfs response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Udf"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Add a new udf to the registry",
+        "operationId": "add_udf",
+        "requestBody": {
+          "description": "udf info in json",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Udf"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "udfs response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Udf"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/udf/{id}": {
+      "get": {
+        "description": "Returns an UDFs based on a single ID",
+        "operationId": "get_udf_by_id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of UDF to fetch",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "udf response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Udf"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "deletes a single udf based on the ID supplied",
+        "operationId": "delete_udf",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of udf to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "udf deleted"
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "update an existing udf. Send attribute spec in query parameters or complete json in object.",
+        "operationId": "update_udf",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of udf to update",
+            "required": true,
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Name of the udf to update",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "interfaceVersion",
+            "in": "query",
+            "description": "API version",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "description": "app code programming language, e.g. Java",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "languageVersion",
+            "in": "query",
+            "description": "app code programming language version, e.g. (Java) 1.8",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "main",
+            "in": "query",
+            "description": "main class name for app code if applicable",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "udf not found"
+          },
+          "405": {
+            "description": "Validation exception"
+          }
+        }
+      }
+    },
+    "/udf/{id}/uploadExecutable": {
+      "post": {
+        "tags": [
+          "udf"
+        ],
+        "summary": "uploads an executable",
+        "operationId": "upload_executable",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of udf to update",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Udf"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "additionalMetadata": {
+                    "description": "Additional data to pass to server",
+                    "type": "string"
+                  },
+                  "file": {
+                    "description": "file to upload",
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Udf": {
+        "description": "User Define Function and its properties",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "System generated unique identifier"
+          },
+          "name": {
+            "type": "string"
+          },
+          "package": {
+            "type": "string",
+            "enum": [
+              "function",
+              "docker"
+            ],
+            "description": "can support 'docker' (packaging with all dependencies in a docker) or 'function' (need following dependencies defined in the schema)"
+          },
+          "interfaceVersion": {
+            "type": "number"
+          },
+          "language": {
+            "type": "string",
+            "example": "Java"
+          },
+          "languageVersion": {
+            "type": "number",
+            "example": "1.8"
+          },
+          "main": {
+            "type": "string",
+            "example": "main_class_name"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
