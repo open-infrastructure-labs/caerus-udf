@@ -1,5 +1,8 @@
 package org.openinfralabs.caerus.UdfRegistry.config;
 
+import org.openinfralabs.caerus.UdfRegistry.controller.UdfController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +16,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 @EnableCaching
 public class RedisConfig {
+
+    Logger logger = LoggerFactory.getLogger(UdfController.class);
 
     private final String HOSTNAME;
 
@@ -36,6 +41,7 @@ public class RedisConfig {
         this.DATABASE = database;
         this.PASSWORD = password;
         this.TIMEOUT = timeout;
+        logger.info("hostname = "+hostname + " port =" + String.valueOf(port));
     }
 
     @Bean

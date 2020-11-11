@@ -3,6 +3,8 @@ package com.example.thumbnail.controller;
 import com.example.thumbnail.service.ThumbnailGenerator;
 import io.minio.*;
 import io.minio.errors.MinioException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -22,6 +24,8 @@ import java.util.Map;
 
 @RestController
 public class RequestHandler {
+    Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+
     static final String thumbnailsBucket = "thumbnailsbucket";
     //static final String tmpThumbnailDir = "/tmp/thumbnails/";
     static final String tmpThumbnailDir = "/tmp/";
@@ -47,10 +51,10 @@ public class RequestHandler {
 
             boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
             if (found) {
-                System.out.println("found Bucket: " + bucket);
+                logger.info("found Bucket: " + bucket);
             } else {
                 // if there is no such bucket, it might not be error, the bucket might be deleted after the event, log warning and move on
-                System.out.println("Warning: bucket removed: " + bucket);
+                logger.warn("bucket not exist unexpectedly: " + bucket);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("can't find bucket: " + bucket);
             }
 
@@ -91,10 +95,10 @@ public class RequestHandler {
             // upload to minio
             boolean foundTarget = minioClient.bucketExists(BucketExistsArgs.builder().bucket(thumbnailsBucket).build());
             if (foundTarget) {
-                System.out.println("found Bucket: " + thumbnailsBucket);
+                logger.info("found Bucket: " + thumbnailsBucket);
             } else {
                 // if there is no such bucket, it might not be error, the bucket might be deleted after the event, log warning and move on
-                System.out.println("Warning: bucket removed: " + thumbnailsBucket);
+                logger.warn("bucket not exist unexpectedly: " + thumbnailsBucket);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("can't find bucket: " + thumbnailsBucket);
             }
 
@@ -104,20 +108,20 @@ public class RequestHandler {
                             .object(thumbnailObjName)
                             .filename(outputFileName)
                             .build());
-            System.out.println("Successfully uploaded as object " + thumbnailObjName + " to Bucket: " + thumbnailsBucket);
+            logger.info("Successfully uploaded as object " + thumbnailObjName + " to Bucket: " + thumbnailsBucket);
 
             // clean up tmp files
             File outfile = new File(outputFileName);
             if (outfile.delete())
-                System.out.println("file deleted: " + outputFileName);
+                logger.debug("file deleted: " + outputFileName);
             else
-                System.out.println("failed to delete file: " + outputFileName);
+                logger.error("failed to delete file: " + outputFileName);
 
             File infile = new File(tmpFileName);
             if (infile.delete())
-                System.out.println("file deleted: " + tmpFileName);
+                logger.debug("file deleted: " + tmpFileName);
             else
-                System.out.println("failed to delete file: " + tmpFileName);
+                logger.error("failed to delete file: " + tmpFileName);
 
 
 

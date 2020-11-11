@@ -3,6 +3,8 @@ package org.openinfralabs.caerus.UdfRegistry.controller;
 import org.openinfralabs.caerus.UdfRegistry.model.NewUdf;
 import org.openinfralabs.caerus.UdfRegistry.model.Udf;
 import org.openinfralabs.caerus.UdfRegistry.service.UdfService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -22,6 +24,7 @@ import java.util.List;
 //@RequestMapping("/api")
 public class UdfController {
 
+    Logger logger = LoggerFactory.getLogger(UdfController.class);
     @Autowired
     private UdfService udfService;
 
@@ -38,10 +41,13 @@ public class UdfController {
                     "  private String main;")
     public ResponseEntity<String> saveUdf(@RequestParam("newUdfJson") String newUdf, @RequestParam("uploadFile") MultipartFile file) {
         boolean result = udfService.saveUdf(newUdf, file);
-        if (result)
-            return ResponseEntity.ok("Udf created successfully.");
-        else
+        if (result) {
+            logger.info("UDF uploaded successfully.");
+            return ResponseEntity.ok("Udf uploaded successfully.");
+        } else {
+            logger.error("Failed to upload UDF.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @GetMapping("/udf")

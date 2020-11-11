@@ -5,6 +5,8 @@ import org.apache.logging.log4j.message.Message;
 import org.joda.time.DateTime;
 import org.openinfralabs.caerus.service.config.RedisConfig;
 import org.openinfralabs.caerus.service.model.Udf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.MessageListener;
@@ -37,6 +39,8 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class KeySpaceNotificationMessageListener implements MessageListener {
 
+    Logger logger = LoggerFactory.getLogger(KeySpaceNotificationMessageListener.class);
+
     final String udf_registry_service_uri = "http://localhost:8080/udf";
     final String udf_docker_uri = "http://localhost:8090/";
     //final String udf_docker_uri = "http://172.17.0.2:8090/";
@@ -68,8 +72,7 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
         String bytesStr = new String(bytes);
         String messageToStr = message.toString();
 
-
-        System.out.println("Recieved action = " + action + " " +
+        logger.info("Recieved action = " + action + " " +
                 " key info = " + key
                 + " bytes = " + bytesStr
                 + "message string = " + messageToStr);
@@ -98,7 +101,7 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
             }
         } else {
             // if there is no such bucket, it might not be error, the bucket might be deleted after the event, log warning and move on
-            System.out.println("no udf found, so ignore the bucket notification.");
+            logger.warn("no udf found, so ignore the bucket notification.");
             return;
         }
 
@@ -150,52 +153,9 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
                 ResponseEntity<String> responseEntity = udfRestTemplate.getForEntity(path, String.class, params);
                 boolean isOK = responseEntity.getStatusCode().equals(HttpStatus.OK);
                 if (isOK)
-                    System.out.println("UDF invoked successfully");
+                    logger.info("UDF invoked successfully");
                 else
-                    System.out.println("UDF invoked failed");
-
-
-   /*
-                //  1. separate this into different storage, e.g. s3: aws, minio, ceph; azure blob storage; google cloud storage etc.
-                //  2. this should be done on minio node, might have more efficient reading
-                MinioClient minioClient =
-                        MinioClient.builder()
-                                .endpoint("http://localhost:9000")
-                                .credentials("minioadmin", "minioadmin")
-                                .build();
-
-                // Make 'asiatrip' bucket if not exist.
-                try {
-
-                    boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
-                    if (found) {
-                        System.out.println("found Bucket: " + bucketName);
-                    } else {
-                        // if there is no such bucket, it might not be error, the bucket might be deleted after the event, log warning and move on
-                        System.out.println("Warning: bucket removed: " + bucketName);
-                        return;
-                    }
-
-                    // get object given the bucket and object name
-                    InputStream stream = minioClient.getObject(
-                            GetObjectArgs.builder()
-                                    .bucket(bucketName)
-                                    .object(objkey)
-                                    .build());
-                    // Read data from stream
-                    URL url = new URL(udf_docker_uri);
-                    URLConnection connection = url.openConnection();
-                    try (ObjectInputStream inputStream = new ObjectInputStream(connection.getInputStream())) {
-                        Object o = inputStream.readObject();
-                    }
-
-
-                } catch (Exception e) {
-                    System.out.println(e);
-                    e.printStackTrace();
-                    return;
-                }*/
-
+                    logger.error("UDF invoked failed");
             }
         }
 
