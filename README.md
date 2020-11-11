@@ -95,7 +95,7 @@ SQS ARNs:  arn:minio:sqs::1:redis
 > mc event list minio/imagesbucket
   arn:minio:sqs::1:redis s3:ObjectCreated:*,s3:ObjectRemoved:* Filter: suffix=”.jpg”
 ``` 
-11. Set up redis notification by following this: https://redis.io/topics/notifications (not this step can be saved if we don't want to change config during runtime, we can just set in the redis docker config file.)
+11. Set up redis notification by following this: https://redis.io/topics/notifications (note this step can be saved if we don't want to change config during runtime, we can just set in the redis docker config file.)
 ```
 root@ubuntu1804:/home/ubuntu# redis-cli -h 172.18.0.2 -a my_password
 Warning: Using a password with '-a' or '-u' option on the command line interface may not be safe.
