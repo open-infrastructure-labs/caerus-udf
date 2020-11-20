@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -20,32 +21,25 @@ import com.google.common.io.Files;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 public class RequestHandler {
     Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
+    @Autowired
+    MinioClient minioClient;
+
     static final String thumbnailsBucket = "thumbnailsbucket";
-    //static final String tmpThumbnailDir = "/tmp/thumbnails/";
-    static final String tmpThumbnailDir = "/tmp/";
+    public static String DEFAULT_INPUT_PARAMETER = "inputParameters";
+    static final String tmpSourceDir = "/tmp/";
 
     @GetMapping("/{bucketName}/{objectKey}")
-    public ResponseEntity<String> handleRequest(@PathVariable("bucketName") String bucket, @PathVariable("objectKey") String key) {
-        // public ResponseEntity<StreamingResponseBody> handleRequest(InputStream is) {
-
-        // StreamingResponseBody stream = new StreamingResponseBody() {
-        //     @Override
-        //     public void writeTo(OutputStream outputStream) throws IOException {
+    public ResponseEntity<String> handleRequest(@PathVariable("bucketName") String bucket, @PathVariable("objectKey") String key, @RequestParam List<String> inputParameters) {
 
         ArrayList<InputStream> inputStreams = new ArrayList<InputStream>();
         ArrayList<OutputStream> outputStreams = new ArrayList<OutputStream>();
-
-        MinioClient minioClient =
-                MinioClient.builder()
-                        .endpoint("http://localhost:9000")
-                        .credentials("minioadmin", "minioadmin")
-                        .build();
 
         try {
 
@@ -58,36 +52,62 @@ public class RequestHandler {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("can't find bucket: " + bucket);
             }
 
-            // TODO: Need to find a way to use stream, in stead of tmp file
-            // get object given the bucket and object name
-            /*InputStream inputStream = minioClient.getObject(
+
+            // Read data from stream: there are two options here:
+            //      1. read into memory: for super large file, it might cause OOM exception, and it will need to reset JVM -Xmx,
+            //      2. read into a temp file, it doesn't have memory issue, but the down side is that we need to create/delete a temp file. Decide to use this.
+
+            // Option #1: Read the input stream and into memory. the JVM size might need to be readjusted
+            /*
+            InputStream inputStreamFromStorage = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(bucket)
                             .object(key)
-                            .build());*/
-            // Read data from stream
+                            .build());
 
-            String tmpFileName = tmpThumbnailDir+key;
+            ByteArrayOutputStream data = new ByteArrayOutputStream();
+            byte[] buf = new byte[16384];
+            int bytesRead;
+            try {
+                while ((bytesRead = inputStreamFromStorage.read(buf, 0, buf.length)) != -1) {
+                    logger.info("read something: " + String.valueOf(bytesRead));
+                    data.write(buf, 0, bytesRead);
+                }
+            } catch (Exception e) {
+                logger.warn("Minio bug: premature close of socket with the last packet, moving on....");
+            }
+
+            data.flush();
+            try(OutputStream outputStream = new FileOutputStream("/tmp/sample.jpg")) {
+                data.writeTo(outputStream);
+            }
+            /// Close the input stream.
+            inputStreamFromStorage.close();
+            InputStream inputStream = new ByteArrayInputStream(data.toByteArray());
+
+             */
+
+            // Option #2: read into a temp file
+            String tmpFileName = tmpSourceDir + key;
             minioClient.downloadObject(DownloadObjectArgs.builder()
                     .bucket(bucket)
                     .object(key)
                     .filename(tmpFileName)
                     .build());
-
             InputStream inputStream = new BufferedInputStream(new FileInputStream(tmpFileName));
-
+            // add stream to list
             inputStreams.add(inputStream);
-            // TODO: Minio doesn't seem to support steraming output directly, can only upload a file
-            //       so, store a temp file here, then upload to minio
 
-            //                    String outputFileName = "/tmp/sample_thumbnail.png";
             String fNameNoExtension = Files.getNameWithoutExtension(key);
             String thumbnailObjName = fNameNoExtension + "_thumbnail.png";
-            String outputFileName = tmpThumbnailDir + bucket + "_" + thumbnailObjName;
-            OutputStream os = new FileOutputStream(outputFileName);
+
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+
             outputStreams.add(os);
 
             Map<String, String> parameters = new HashMap<String, String>();
+            String inputParametersCommaSeparated = String.join(",", inputParameters);
+            parameters.put ("inputParameters", inputParametersCommaSeparated);
             //parameters.put(WATERMARKFILENAME, watermarkFileName);
             ThumbnailGenerator.invoke(inputStreams, outputStreams, parameters);
 
@@ -102,31 +122,32 @@ public class RequestHandler {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("can't find bucket: " + thumbnailsBucket);
             }
 
-            minioClient.uploadObject(
-                    UploadObjectArgs.builder()
+            // thumbnail should be smaller enough by using byte array transfer, otherwise we can use NIO channels to redirect
+            // https://howtodoinjava.com/java/io/outputstream-to-inputstream/
+
+            //byte[] -> InputStream
+            ByteArrayInputStream thumbnailInStream = new ByteArrayInputStream(os.toByteArray());
+
+            minioClient.putObject(
+                    PutObjectArgs.builder()
                             .bucket(thumbnailsBucket)
                             .object(thumbnailObjName)
-                            .filename(outputFileName)
+                            .stream(thumbnailInStream, thumbnailInStream.available(), -1)
                             .build());
+
+            thumbnailInStream.close();
+
             logger.info("Successfully uploaded as object " + thumbnailObjName + " to Bucket: " + thumbnailsBucket);
 
-            // clean up tmp files
-            File outfile = new File(outputFileName);
-            if (outfile.delete())
-                logger.debug("file deleted: " + outputFileName);
-            else
-                logger.error("failed to delete file: " + outputFileName);
-
+            // clean up temp files
             File infile = new File(tmpFileName);
             if (infile.delete())
                 logger.debug("file deleted: " + tmpFileName);
             else
                 logger.error("failed to delete file: " + tmpFileName);
-
-
-
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error("Error:" + e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unexpected exception: " + e);
         }
 

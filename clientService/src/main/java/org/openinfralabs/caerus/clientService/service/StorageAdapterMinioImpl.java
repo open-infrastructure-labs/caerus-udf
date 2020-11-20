@@ -15,12 +15,14 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.openinfralabs.caerus.clientService.model.Udf;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class StorageAdapterMinioImpl implements StorageAdapter {
@@ -33,6 +35,7 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
     final String invocation_event_delete = "delete";
     final String bucketNamePath = "bucketName";
     final String objectKeyPath = "objectkey";
+    final String DEFAULT_INPUT_PARAMETERS_KEY = "inputParameters";
 
     @Autowired
     MinioClient minioClient;
@@ -52,6 +55,7 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
             // Upload input stream with headers and user metadata.
 
             // see if there is udf metadata
+            Map<String, String> userMetadata = new HashMap<>();
             if (metadata == null) {
                 minioClient.putObject(
                         PutObjectArgs.builder().bucket(bucket).object(filename).stream(
@@ -59,7 +63,6 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
                                 .build());
             } else {
                 // TODO: user metadata eventually can be used in storage to capture, and then add business logic in storage system. For now it is just a recording on storage side
-                Map<String, String> userMetadata = new HashMap<>();
                 userMetadata.put("udfName", metadata.getName());
 
                 Optional<List<String>> extraResources = metadata.getExtraResources();
@@ -70,15 +73,18 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
                 Optional<List<String>> inputParameters = metadata.getInputParameters();
                 if (inputParameters.isPresent()) {
                     String inputParametersCommaSeparated = String.join(",", inputParameters.get());
-                    userMetadata.put("inputParameters", inputParametersCommaSeparated);
+                    userMetadata.put(DEFAULT_INPUT_PARAMETERS_KEY, inputParametersCommaSeparated);
                 }
                 minioClient.putObject(
                         PutObjectArgs.builder().bucket(bucket).object(filename).stream(
                                 inputStream, inputStream.available(), -1)
                                 .userMetadata(userMetadata)
                                 .build());
+
             }
 
+            // Make sure to close inputstream, otherwiase, it might cause Connection Reset error
+            inputStream.close();
 
             logger.info("File uploaded: " + filename);
 
@@ -98,7 +104,7 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
                     return;
                 }
 
-                //2. TODO: need automate the deploy of udf)
+                //2. TODO: need automate the deploy of udf
 
                 //3. invoke udf via udf service
 
@@ -108,6 +114,11 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
                 params.put(objectKeyPath, filename);
 
                 String path = udf_docker_uri + bucket + "/" + filename;
+
+                if (!userMetadata.isEmpty() && userMetadata.containsKey(DEFAULT_INPUT_PARAMETERS_KEY)) {
+                    String inputParametersCommaSeparated = userMetadata.get(DEFAULT_INPUT_PARAMETERS_KEY);
+                    path = path + "/" + "?" + DEFAULT_INPUT_PARAMETERS_KEY + "=" + inputParametersCommaSeparated;
+                }
                 ResponseEntity<String> responseEntity = udfRestTemplate.getForEntity(path, String.class, params);
                 boolean isOK = responseEntity.getStatusCode().equals(HttpStatus.OK);
                 if (isOK)

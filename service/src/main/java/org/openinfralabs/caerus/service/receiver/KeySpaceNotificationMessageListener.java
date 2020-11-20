@@ -23,17 +23,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 
-//TODO: aws s3 should be in separate class
+//TODO: aws s3 should be in separate class, to support more cloud storages
 import com.amazonaws.services.s3.event.S3EventNotification;
 import com.amazonaws.services.s3.event.S3EventNotification.S3EventNotificationRecord;
 
-//TODO: mino related imports should be in separate class
-import io.minio.BucketExistsArgs;
-import io.minio.MakeBucketArgs;
-import io.minio.MinioClient;
-import io.minio.UploadObjectArgs;
-import io.minio.GetObjectArgs;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
 @Component

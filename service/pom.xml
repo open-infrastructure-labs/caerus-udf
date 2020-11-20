@@ -70,12 +70,6 @@
 			<version>1.11.894</version>
 		</dependency>
 
-		<dependency>
-			<groupId>io.minio</groupId>
-			<artifactId>minio</artifactId>
-			<version>8.0.0</version>
-		</dependency>
-
 	</dependencies>
 
 	<build>
