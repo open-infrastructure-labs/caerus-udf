@@ -125,3 +125,14 @@ root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail#
 ```
 http://localhost:9000/minio/thumbnailsbucket/
 ``` 
+15. Explicitly call a UDF while upload/download/delete object, use Postman or curl command. 
+In following example, upon uploading an image file "sample.jpg" to storage, invoke a UDF "thumbnail" to create a thumbnail image 
+with input parameters of width=400 and height=600, the thumbnail image is then upload to storage (default location bucket "thumbnailsbucket"):  
+```
+curl --location --request POST 'localhost:8000/upload' \
+--form 'bucket=b100' \
+--form 'uploadFile=@/home/ubuntu/images/new/sample.jpg' \
+--form 'metadata={   "name": "thumbnail",
+    "inputParameters": ["400", "600"]
+}'
+```
