@@ -1,6 +1,5 @@
 package org.openinfralabs.caerus.service.receiver;
 
-import io.minio.messages.Bucket;
 import org.apache.logging.log4j.message.Message;
 import org.joda.time.DateTime;
 import org.openinfralabs.caerus.service.config.RedisConfig;
@@ -42,6 +41,8 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
     final String invocation_event_delete = "delete";
     final String bucketNamePath = "bucketName";
     final String objectKeyPath = "objectkey";
+    final String DEFAULT_INPUT_PARAMETERS_KEY = "inputParameters";
+    String INPUT_PARAMETERS_COMMA_SEPARATED = "200,200";
 
     @Autowired
     RedisCacheManager redisCacheManager;
@@ -143,6 +144,9 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
                 params.put(objectKeyPath, objkey);
 
                 String path = udf_docker_uri + bucketName + "/" + objkey;
+
+                path = path + "/" + "?" + DEFAULT_INPUT_PARAMETERS_KEY + "=" + INPUT_PARAMETERS_COMMA_SEPARATED;
+
                 ResponseEntity<String> responseEntity = udfRestTemplate.getForEntity(path, String.class, params);
                 boolean isOK = responseEntity.getStatusCode().equals(HttpStatus.OK);
                 if (isOK)
