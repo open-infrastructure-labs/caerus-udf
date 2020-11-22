@@ -144,3 +144,18 @@ curl --location --request POST 'localhost:8000/upload' \
     "inputParameters": ["400", "600"]
 }'
 ```
+18. Check storage to see the metadata tag info:
+```
+root@ubuntu1804:/home/ubuntu# mc stat minio/b100/sample0.jpg
+Name      : sample0.jpg
+Date      : 2020-11-22 11:57:44 EST 
+Size      : 2.4 MiB 
+ETag      : d68938beae85b03344ec3b2fc56e2ea9 
+Type      : file 
+Metadata  :
+  Content-Type              : application/octet-stream 
+  X-Amz-Meta-Inputparameters: 400,600 
+  X-Amz-Meta-Udfname        : thumbnail 
+
+root@ubuntu1804:/home/ubuntu# 
+```
