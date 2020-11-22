@@ -120,12 +120,20 @@ root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail# mc l
 [2020-11-10 13:53:53 EST]  6.2KiB sample_thumbnail.png
 root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail# 
 ``` 
-
 14. Can also view web portal of storage using a web browser 
 ```
 http://localhost:9000/minio/thumbnailsbucket/
 ``` 
-15. Explicitly call a UDF while upload/download/delete object, use Postman or curl command. 
+15. Build Caerus HTTP Service (clientService) project:
+```
+> cd clientService
+> mvn clean package
+```
+16. Run Caerus HTTP Service (clientService) project:
+```
+> java -jar target/clientService-0.0.1-SNAPSHOT.jar
+``` 
+17. Explicitly call a UDF while upload/download/delete object, use Postman or curl command. 
 In following example, upon uploading an image file "sample.jpg" to storage, invoke a UDF "thumbnail" to create a thumbnail image 
 with input parameters of width=400 and height=600, the thumbnail image is then upload to storage (default location bucket "thumbnailsbucket"):  
 ```
