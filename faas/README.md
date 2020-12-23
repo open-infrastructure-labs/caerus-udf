@@ -205,8 +205,13 @@ root@caerus-demo:/home/yong/caerus/ndp/udf/faas#
 root@caerus-demo:/home/yong/caerus/ndp/udf/faas# ls
 examples  template
 ``` 
-3. To support a new language (using scala as an example, you can see example source code for scala and spring boot under examples folder), here are the steps:
-Note: It will be better to copy the "template" folder from Step 2 to a temp folder, make the proper changes in source code, then copy back to proper git location for the new function
+3. To support a custom function template that has different language (using scala as an example, you can see example source code for scala and spring boot under examples folder) or different build systems other than default gradle), here are the steps:
+Note:
+a. It will be better to copy the "template" folder from Step 2 to a temp folder, make the proper changes in source code, then copy back to proper git location for the new function
+b. several good 'custom' function template examples: 
+  * https://blog.alexellis.io/cli-functions-with-openfaas/
+  * https://github.com/AnEmortalKid/scala-template-faas
+  * https://github.com/tmobile/faas-java-templates
 ``` 
 > mkdir /tmp/openfaas 
 > cp -r ndp/udf/faas/template/ /tmp/openfaas/
