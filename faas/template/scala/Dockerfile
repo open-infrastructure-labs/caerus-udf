@@ -1,5 +1,6 @@
 # Pull base image from https://github.com/hseeberger/scala-sbt
-FROM hseeberger/scala-sbt
+# FROM hseeberger/scala-sbt
+FROM hseeberger/scala-sbt:8u222_1.3.5_2.13.1
 
 RUN echo "Pulling watchdog binary from Github." \
     && curl -sSL https://github.com/openfaas/faas/releases/download/0.8.9/fwatchdog > /usr/bin/fwatchdog \
