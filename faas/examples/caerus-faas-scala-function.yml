@@ -1,0 +1,10 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  caerus-faas-scala-function:
+    lang: scala
+    handler: ./caerus-faas-scala-function
+    image: futureweibostonlab/caerus-faas-scala-function:0.0.1
+
