@@ -231,6 +231,9 @@ b. several good 'custom' function template examples:
 >  kubectl describe pod caerus-faas-spring-function-665968965f-kd4dg  -n openfaas-fn
 =>>>>>> if the function state is an error, troubleshoot the logs for pod and docker
 > kubectl logs caerus-faas-spring-function-665968965f-kd4dg -n openfaas-fn
+=>>>>>> or live troubleshooting by logging into pod/container
+> kubectl exec -it caerus-faas-spring-thumbnail-75d46c5bbd-lvnkt -n openfaas-fn -c caerus-faas-spring-thumbnail sh 
+
 > echo Hi | faas invoke caerus-faas-scala-function
 =>>>>>> Or use openfaas GUI to set input params and invoke
 ```
