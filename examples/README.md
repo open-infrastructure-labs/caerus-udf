@@ -2,7 +2,8 @@ To test this function, do following steps:
 1. build the project: 
 ```
 mvn clean package
-'''
+```
+
 2. Start the app via IDE or command line:
 ```
 java -jar target/thumbnail-0.0.1-SNAPSHOT.jar
