@@ -4,7 +4,7 @@ To test this function, do following steps:
 mvn clean package
 ```
 
-2. Start the app via IDE or command line:
+2. Start the app via IDE for debuuging or via command line:
 ```
 java -jar target/thumbnail-0.0.1-SNAPSHOT.jar
 ```
