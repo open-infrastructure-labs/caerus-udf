@@ -28,8 +28,24 @@ import com.amazonaws.services.s3.event.S3EventNotification.S3EventNotificationRe
 
 import org.springframework.web.client.RestTemplate;
 
+
+// SERVERLESS related imports
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+
+
+import io.swagger.client.ApiException;
+import io.swagger.client.api.DefaultApi;
+import io.swagger.client.model.FunctionListEntry;
+
 @Component
 public class KeySpaceNotificationMessageListener implements MessageListener {
+    // adding conditional compiling flag
+    public static final boolean SERVERLESS = true;
 
     Logger logger = LoggerFactory.getLogger(KeySpaceNotificationMessageListener.class);
 
@@ -39,9 +55,12 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
     final String invocation_event_put = "put";
     final String invocation_event_access = "get";
     final String invocation_event_delete = "delete";
+    final String invocation_event_copy = "copy";
     final String bucketNamePath = "bucketName";
-    final String objectKeyPath = "objectkey";
+    final String objectKeyPath = "objectKey";
     final String DEFAULT_INPUT_PARAMETERS_KEY = "inputParameters";
+    final String LEN = "200";
+    final String WID = "400";
     String INPUT_PARAMETERS_COMMA_SEPARATED = "200,200";
 
     @Autowired
@@ -74,87 +93,209 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
         // get invocationEvents types from UdfRegistryService
         RestTemplate restTemplate = new RestTemplate();
 
-        // TODO: need to handle this in a batch way, e.g., get a list of UDFs that are all on "PUT"
-        // get udf notification event
-        Udf[] udfArray = restTemplate.getForObject(udf_registry_service_uri, Udf[].class);
-        List<Udf> udfPutList = new ArrayList<Udf>();
-        List<Udf> udfDeleteList = new ArrayList<Udf>();
-        List<Udf> udfAccessList = new ArrayList<Udf>();
-        if (udfArray != null) {
-            for (Udf tmpUdf : udfArray) {
-                List<String> listInvocationEvents = tmpUdf.getInvocationEvents();
-                for (String tmpStr : listInvocationEvents) {
-                    if (tmpStr.toLowerCase().contains(invocation_event_access)) {
-                        udfAccessList.add(tmpUdf);
-                    } else if (tmpStr.toLowerCase().contains(invocation_event_put)) {
-                        udfPutList.add(tmpUdf);
-                    } else if (tmpStr.toLowerCase().contains(invocation_event_delete)) {
-                        udfDeleteList.add(tmpUdf);
+        if (!SERVERLESS) {
+
+            // TODO: need to handle this in a batch way, e.g., get a list of UDFs that are all on "PUT"
+            // get udf notification event
+            Udf[] udfArray = restTemplate.getForObject(udf_registry_service_uri, Udf[].class);
+            List<Udf> udfPutList = new ArrayList<Udf>();
+            List<Udf> udfDeleteList = new ArrayList<Udf>();
+            List<Udf> udfAccessList = new ArrayList<Udf>();
+            if (udfArray != null) {
+                for (Udf tmpUdf : udfArray) {
+                    List<String> listInvocationEvents = tmpUdf.getInvocationEvents();
+                    for (String tmpStr : listInvocationEvents) {
+                        if (tmpStr.toLowerCase().contains(invocation_event_access)) {
+                            udfAccessList.add(tmpUdf);
+                        } else if (tmpStr.toLowerCase().contains(invocation_event_put)) {
+                            udfPutList.add(tmpUdf);
+                        } else if (tmpStr.toLowerCase().contains(invocation_event_delete)) {
+                            udfDeleteList.add(tmpUdf);
+                        }
                     }
                 }
+            } else {
+                // if there is no such bucket, it might not be error, the bucket might be deleted after the event, log warning and move on
+                logger.warn("no udf found, so ignore the bucket notification.");
+                return;
             }
-        } else {
-            // if there is no such bucket, it might not be error, the bucket might be deleted after the event, log warning and move on
-            logger.warn("no udf found, so ignore the bucket notification.");
-            return;
-        }
 
 
-        // TODO: separate this into aws s3 (minio use this one), azure bob storage, gcs google cloud storage etc. they all have notification and own APIs
-        List<String> jsonRecords = redisTemplate.opsForHash().values(action);
+            // TODO: separate this into aws s3 (minio use this one), azure bob storage, gcs google cloud storage etc. they all have notification and own APIs
+            List<String> jsonRecords = redisTemplate.opsForHash().values(action);
 
-        List<S3EventNotificationRecord> records = new ArrayList<S3EventNotificationRecord>();
-        for (String payload : jsonRecords) {
-            S3EventNotification s3EventNotification = S3EventNotification.parseJson(payload);
-            records.addAll(s3EventNotification.getRecords());
-        }
-
-
-        for (S3EventNotificationRecord currRecord : records) {
-
-            // TODO: Need to add a mechanism to only process the "new" event, based on eventtime
-            DateTime eventtime = currRecord.getEventTime();
-            // eventName s3:ObjectAccessed:Get, :Put, and :DeletetmpStr.
-            String eventName = currRecord.getEventName();
-            if (
-                    (eventName.toLowerCase().contains(invocation_event_put) && !udfPutList.isEmpty()) ||
-                            (eventName.toLowerCase().contains(invocation_event_access) && !udfAccessList.isEmpty()) ||
-                            (eventName.toLowerCase().contains(invocation_event_delete) && !udfDeleteList.isEmpty())
-            ) {
-                S3EventNotification.S3Entity s3 = currRecord.getS3();
-                S3EventNotification.S3BucketEntity bucket = s3.getBucket();
-                // bucket name: imagesbucket
-                String bucketName = bucket.getName();
-
-
-                S3EventNotification.S3ObjectEntity s3obj = s3.getObject();
-                // objkey: sample.jpg
-                String objkey = s3obj.getKey();
-
-
-                // get invocationEvents types from UdfRegistryService
-                RestTemplate udfRestTemplate = new RestTemplate();
-
-                // TODO: need to handle this in a batch way, e.g., get a list of UDFs that are all on "PUT"
-                // get udf notification event
-
-                // invoke udf
-                Map<String, String> params = new HashMap<String, String>();
-                params.put(bucketNamePath, bucketName);
-                params.put(objectKeyPath, objkey);
-
-                String path = udf_docker_uri + bucketName + "/" + objkey;
-
-                path = path + "/" + "?" + DEFAULT_INPUT_PARAMETERS_KEY + "=" + INPUT_PARAMETERS_COMMA_SEPARATED;
-
-                ResponseEntity<String> responseEntity = udfRestTemplate.getForEntity(path, String.class, params);
-                boolean isOK = responseEntity.getStatusCode().equals(HttpStatus.OK);
-                if (isOK)
-                    logger.info("UDF invoked successfully");
-                else
-                    logger.error("UDF invoked failed");
+            List<S3EventNotificationRecord> records = new ArrayList<S3EventNotificationRecord>();
+            for (String payload : jsonRecords) {
+                S3EventNotification s3EventNotification = S3EventNotification.parseJson(payload);
+                records.addAll(s3EventNotification.getRecords());
             }
-        }
 
+
+            for (S3EventNotificationRecord currRecord : records) {
+
+                // TODO: Need to add a mechanism to only process the "new" event, based on eventtime
+                DateTime eventtime = currRecord.getEventTime();
+                // eventName s3:ObjectAccessed:Get, :Put, and :DeletetmpStr.
+                String eventName = currRecord.getEventName();
+                if (
+                        (eventName.toLowerCase().contains(invocation_event_put) && !udfPutList.isEmpty()) ||
+                                (eventName.toLowerCase().contains(invocation_event_access) && !udfAccessList.isEmpty()) ||
+                                (eventName.toLowerCase().contains(invocation_event_delete) && !udfDeleteList.isEmpty())
+                ) {
+                    S3EventNotification.S3Entity s3 = currRecord.getS3();
+                    S3EventNotification.S3BucketEntity bucket = s3.getBucket();
+                    // bucket name: imagesbucket
+                    String bucketName = bucket.getName();
+
+
+                    S3EventNotification.S3ObjectEntity s3obj = s3.getObject();
+                    // objkey: sample.jpg
+                    String objkey = s3obj.getKey();
+
+
+                    // get invocationEvents types from UdfRegistryService
+                    RestTemplate udfRestTemplate = new RestTemplate();
+
+                    // TODO: need to handle this in a batch way, e.g., get a list of UDFs that are all on "PUT"
+                    // get udf notification event
+
+                    // invoke udf
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put(bucketNamePath, bucketName);
+                    params.put(objectKeyPath, objkey);
+
+                    String path = udf_docker_uri + bucketName + "/" + objkey;
+
+                    path = path + "/" + "?" + DEFAULT_INPUT_PARAMETERS_KEY + "=" + INPUT_PARAMETERS_COMMA_SEPARATED;
+
+                    ResponseEntity<String> responseEntity = udfRestTemplate.getForEntity(path, String.class, params);
+                    boolean isOK = responseEntity.getStatusCode().equals(HttpStatus.OK);
+                    if (isOK)
+                        logger.info("UDF invoked successfully");
+                    else
+                        logger.error("UDF invoked failed");
+                }
+            }
+        } else { // Serverless
+
+
+            DefaultApi apiInstance = new DefaultApi();
+            List<FunctionListEntry> response = new ArrayList();
+            try {
+                response = apiInstance.systemFunctionsGet();
+
+
+            } catch (ApiException e) {
+                System.err.println("Exception when calling DefaultApi#asyncFunctionFunctionNamePost");
+                e.printStackTrace();
+            }
+
+            System.out.println(response);
+
+            List<FunctionListEntry> udfPutList = new ArrayList<FunctionListEntry>();
+            List<FunctionListEntry> udfDeleteList = new ArrayList<FunctionListEntry>();
+            List<FunctionListEntry> udfAccessList = new ArrayList<FunctionListEntry>();
+            List<FunctionListEntry> udfCopyList = new ArrayList<FunctionListEntry>();
+
+
+            for (int i = 0; i < response.size(); i++) {
+                FunctionListEntry functionListEntry = response.get(i);
+                Map<String, String> annotations = functionListEntry.getAnnotations();
+                String invocation_event_types = annotations.get("invocation_event_types");
+
+                if (invocation_event_types != null) {
+                    Gson gson = new Gson();
+                    JsonElement jsonElement = new JsonParser().parse(invocation_event_types);
+                    JsonArray jsonArray = jsonElement.getAsJsonArray();
+                    List<String> list = gson.fromJson(jsonArray, new TypeToken<List<String>>() {
+                    }.getType());
+                    for (int j = 0; j < list.size(); j++) {
+                        String type = list.get(j);
+                        if (type.compareToIgnoreCase("put") == 0)
+                            udfPutList.add(functionListEntry);
+                        else if (type.compareToIgnoreCase("delete") == 0)
+                            udfDeleteList.add(functionListEntry);
+                        else if (type.compareToIgnoreCase("get") == 0)
+                            udfAccessList.add(functionListEntry);
+                        else if (type.compareToIgnoreCase("copy") == 0)
+                            udfCopyList.add(functionListEntry);
+                    }
+                }
+
+            }
+
+            // TODO: separate this into aws s3 (minio use this one), azure bob storage, gcs google cloud storage etc. they all have notification and own APIs
+            List<String> jsonRecords = redisTemplate.opsForHash().values(action);
+
+            List<S3EventNotificationRecord> records = new ArrayList<S3EventNotificationRecord>();
+            for (String payload : jsonRecords) {
+                S3EventNotification s3EventNotification = S3EventNotification.parseJson(payload);
+                records.addAll(s3EventNotification.getRecords());
+            }
+
+
+            for (S3EventNotificationRecord currRecord : records) {
+
+                // TODO: Need to add a mechanism to only process the "new" event, based on eventtime
+                DateTime eventtime = currRecord.getEventTime();
+                // eventName s3:ObjectAccessed:Get, :Put, and :DeletetmpStr.
+                String eventName = currRecord.getEventName();
+
+                if (eventName.toLowerCase().contains(invocation_event_put)) {
+
+                    if (false == udfPutList.isEmpty()) {
+                        for (int i = 0; i < udfPutList.size(); i++) {
+
+                            String functionName = udfPutList.get(i).getName(); // String | Function name
+
+                            S3EventNotification.S3Entity s3 = currRecord.getS3();
+                            S3EventNotification.S3BucketEntity bucket = s3.getBucket();
+                            // bucket name: imagesbucket
+                            String bucketName = bucket.getName();
+
+
+                            S3EventNotification.S3ObjectEntity s3obj = s3.getObject();
+                            // objkey: sample.jpg
+                            String objkey = s3obj.getKey();
+
+
+                            JsonObject jsonObject = new JsonObject();
+                            jsonObject.addProperty(bucketNamePath, bucketName);
+                            jsonObject.addProperty(objectKeyPath, objkey);
+
+                            List<String> list = Arrays.asList(LEN, WID);
+                            String innerObjStr = new Gson().toJson(list);
+                            JsonElement jsonElement = new JsonParser().parse(innerObjStr);
+
+                            jsonObject.add(DEFAULT_INPUT_PARAMETERS_KEY, jsonElement);
+
+
+                            String jsonStr = jsonObject.toString();
+                            byte[] inputBytes = jsonStr.getBytes();
+
+                            try {
+                                apiInstance.functionFunctionNamePost(functionName, inputBytes);
+                            } catch (ApiException e) {
+                                System.err.println("Exception when calling DefaultApi#functionFunctionNamePost");
+                                logger.error("UDF invoked failed");
+                                e.printStackTrace();
+                            }
+
+                            logger.info("UDF invoked successfully");
+
+
+                        }
+
+                    }
+                } else if (eventName.toLowerCase().contains(invocation_event_access)) {
+                    //TODO
+                } else if (eventName.toLowerCase().contains(invocation_event_delete)) {
+                    //TODO
+                } else if (eventName.toLowerCase().contains(invocation_event_copy)) {
+                    //TODO
+                }
+            }
+
+        }
     }
 }
