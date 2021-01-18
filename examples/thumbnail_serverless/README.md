@@ -1,4 +1,4 @@
-Precondition before you can invoke this serverless function:
+# Preconditions
 1. Openfaas is up running
 2. Port forwarding
 ```
@@ -7,6 +7,7 @@ kubectl port-forward -n openfaas svc/gateway 8080:8080 &
 3. Minio server is up running
 
 
+# Operations on Function
 To build, push (to docker hub), deploy and invoke openfaas java(8) spring boot thumbnail app serverless function, do follwoings:
 1. Build
 ```
