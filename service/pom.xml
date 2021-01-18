@@ -19,6 +19,14 @@
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<springfox-version>2.9.2</springfox-version>
+		<!--- Following properties are serverless related-->
+		<gson-fire-version>1.8.0</gson-fire-version>
+		<swagger-core-version>1.5.15</swagger-core-version>
+		<okhttp-version>2.7.5</okhttp-version>
+		<gson-version>2.8.1</gson-version>
+		<maven-plugin-version>1.0.0</maven-plugin-version>
+		<junit-version>4.12</junit-version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<dependencies>
@@ -68,6 +76,65 @@
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-s3</artifactId>
 			<version>1.11.894</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.cloudatio.openfaas</groupId>
+			<artifactId>openfaas-client</artifactId>
+			<version>0.0.1</version>
+			<!-- <scope>system</scope>
+			<systemPath>${project.basedir}/src/main/resources/openfaas-client-0.0.1.jar</systemPath>
+			-->
+			<!--- TODO: find a solution to solve runtime noclassfoundexception issue, for now, manual add local jar to mvn repositories
+			root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/service#
+			mvn org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file -Dfile=src/main/resources/openfaas-client-0.0.1.jar
+		    -->
+		</dependency>
+
+		<dependency>
+			<groupId>com.squareup.okhttp</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>${okhttp-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>${swagger-core-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>${okhttp-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp</groupId>
+			<artifactId>logging-interceptor</artifactId>
+			<version>${okhttp-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${gson-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.gsonfire</groupId>
+			<artifactId>gson-fire</artifactId>
+			<version>${gson-fire-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20201115</version>
+		</dependency>
+
+		<!-- test dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit-version}</version>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>
