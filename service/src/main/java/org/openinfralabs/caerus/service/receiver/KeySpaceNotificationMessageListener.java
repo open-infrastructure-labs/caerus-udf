@@ -90,10 +90,10 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
                 + " bytes = " + bytesStr
                 + "message string = " + messageToStr);
 
+        // get invocationEvents types from UdfRegistryService
+        RestTemplate restTemplate = new RestTemplate();
 
         if (!SERVERLESS) {
-            // get invocationEvents types from UdfRegistryService
-            RestTemplate restTemplate = new RestTemplate();
 
             // TODO: need to handle this in a batch way, e.g., get a list of UDFs that are all on "PUT"
             // get udf notification event
