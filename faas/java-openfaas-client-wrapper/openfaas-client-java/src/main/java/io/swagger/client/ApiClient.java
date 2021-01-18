@@ -52,8 +52,13 @@ import io.swagger.client.auth.OAuth;
 
 public class ApiClient {
 
-    private String basePath = "http://localhost";
+    // TODO: A temp solution here. Below 4 parameters should be read from env or files. FIXME later
+    private String basePath = "http://127.0.0.1:8080";
+    private String username = "admin";
+    private String password = "59Bsyt81b0o9Uczxrl6h30Dt6";
     private boolean debugging = false;
+
+
     private Map<String, String> defaultHeaderMap = new HashMap<String, String>();
     private String tempFolderPath = null;
 
@@ -77,8 +82,8 @@ public class ApiClient {
      * Constructor for ApiClient
      */
     public ApiClient() {
+        //httpClient = createAuthenticatedClient(username, password);
         httpClient = new OkHttpClient();
-
 
         verifyingSsl = true;
 
@@ -89,10 +94,27 @@ public class ApiClient {
 
         // Setup authentications (key: authentication name, value: authentication).
         authentications = new HashMap<String, Authentication>();
-        authentications.put("basicAuth", new HttpBasicAuth());
+
+        HttpBasicAuth httpBasicAuth = new HttpBasicAuth();
+        httpBasicAuth.setUsername(username);
+        httpBasicAuth.setPassword(password);
+
+        authentications.put("basicAuth", httpBasicAuth);
         // Prevent the authentications from being modified.
         authentications = Collections.unmodifiableMap(authentications);
     }
+/*
+    private static OkHttpClient createAuthenticatedClient(final String username,
+                                                          final String password) {
+        // build client with authentication information.
+        OkHttpClient httpClient = new OkHttpClient.Builder().authenticator(new Authenticator() {
+            public Request authenticate(Route route, Response response) throws IOException {
+                String credential = Credentials.basic(username, password);
+                return response.request().newBuilder().header("Authorization", credential).build();
+            }
+        }).build();
+        return httpClient;
+    }*/
 
     /**
      * Get base path
@@ -1086,10 +1108,18 @@ public class ApiClient {
             if (auth == null) throw new RuntimeException("Authentication undefined: " + authName);
             auth.applyToParams(queryParams, headerParams);
         }
+
+        // TODO: A temp solution here. FIXME later
+        if (authNames.length == 0) {
+            String authName = "basicAuth";
+            Authentication auth = this.authentications.get(authName);
+            if (auth == null) throw new RuntimeException("Authentication undefined: " + authName);
+            auth.applyToParams(queryParams, headerParams);
+        }
     }
 
     /**
-     * Build a form-encoding request body with the given form parameters.
+     * Build a form-encoding request body with the given form paramelters.
      *
      * @param formParams Form parameters in the form of Map
      * @return RequestBody
