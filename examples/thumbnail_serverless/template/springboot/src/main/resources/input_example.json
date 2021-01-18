@@ -1,0 +1,6 @@
+{
+  "bucketName": "imagesbucket",
+  "objectKey": "sample.jpg",
+  "inputParameters": ["200", "400"]
+}
+
