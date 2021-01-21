@@ -37,7 +37,14 @@ public class StorageController {
                     "   3. an optional udf metadata in json, it includes followings:" +
                         "            private String name;\n" +
                         "            (optional) private List<String> inputParameters;\n" +
-                        "            (optional) private List<String> extraResources;")
+                        "            (optional) private List<String> extraResources;" +
+                        "or curl command: " +
+                        "curl --location --request POST 'localhost:8000/upload' \\\n" +
+                        "--form 'bucket=\"b100\"' \\\n" +
+                        "--form 'uploadFile=@\"/home/ubuntu/images/new/sample0.jpg\"' \\\n" +
+                        "--form 'metadata=\"{   \\\"name\\\": \\\"caerus-faas-spring-thumbnail\\\",\n" +
+                        "    \\\"inputParameters\\\": [\\\"400\\\", \\\"600\\\"]\n" +
+                        "}\";type=application/json'" )
     public Map<String, String> uploadFile(@RequestParam("bucket") String bucket, @RequestParam("uploadFile") MultipartFile file, @RequestParam("metadata") Optional<String> metadata ) throws IOException {
 
         String filename = file.getOriginalFilename();
