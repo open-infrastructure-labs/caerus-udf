@@ -4,7 +4,27 @@
 ```
 kubectl port-forward -n openfaas svc/gateway 8080:8080 &
 ```
-3. Minio server is up running
+3. Minio server is up running 
+
+**Note**: minio server address is defined in this file:
+
+https://github.com/futurewei-cloud/caerus/blob/master/ndp/udf/examples/thumbnail_serverless/template/springboot/src/main/resources/application.properties
+server.contextPath=/
+	server.port=3001
+	logging.path=/tmp
+	logging.file=${logging.path}/thumbnailApplication.log
+	minio.access.name=minioadmin
+	minio.access.secret=minioadmin
+	**minio.url=http://192.168.1.118:9000**
+
+Make sure to adjust your Minio server IP and port based on your Minio actual settings, fail to do so will have function invocation error: 
+```
+root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/thumbnail_serverless# echo '{ "bucketName": "imagesbucket", "objectKey": "sample.jpg", "inputParameters": ["200", "400"] }' | faas invoke caerus-faas-spring-thumbnail
+Server returned unexpected status code: 400 - Unexpected exception: java.net.NoRouteToHostException: Host is unreachable (Host unreachable)
+root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/thumbnail_serverless#
+```
+
+
 
 
 # Operations on Function
