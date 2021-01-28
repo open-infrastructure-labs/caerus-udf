@@ -3,7 +3,7 @@ Caerus UDF supports FaaS build, deploy, and envocation. It currently uses Openfa
 https://www.openfaas.com/
 
 # Getting Started - Setup Openfaas Framework
-Note: Fowllowing steps are to setup kubenetes cluster of openfaas, where step 1-7 are pre-requirements, and step 8-12 are doe the framework deployment  
+Note: Fowllowing steps are to setup kubenetes cluster of openfaas, where step 1-7 are pre-requirements, and step 8-12 are steps for the framework deployment  
 1. Install make :
 ```
 > apt update
@@ -207,15 +207,15 @@ examples  template
 ``` 
 3. To support a custom function template that has different language (using scala as an example, you can see example source code for scala and spring boot under examples folder) or different build systems other than default gradle), here are the steps:
 Note:
-a. It will be better to copy the "template" folder from Step 2 to a temp folder, make the proper changes in source code, then copy back to proper git location for the new function
+a. It will be better to copy the "template" folder from Step 2 to a temp folder (be careful to use /tmp folder, the code might not survive reboot), make the proper changes in source code, then copy back to proper git location for the new function
 b. several good 'custom' function template examples: 
   * https://blog.alexellis.io/cli-functions-with-openfaas/
   * https://github.com/AnEmortalKid/scala-template-faas
   * https://github.com/tmobile/faas-java-templates
 ``` 
-> mkdir /tmp/openfaas 
-> cp -r ndp/udf/faas/template/ /tmp/openfaas/
-> cd /tmp/openfaas
+> mkdir /openfaas 
+> cp -r ndp/udf/faas/template/ /openfaas/
+> cd /openfaas
 > faas new --list
 > vi ~/.bashrc
 =>>>>> add one line: export OPENFAAS_PREFIX=futureweibostonlab
@@ -229,8 +229,11 @@ b. several good 'custom' function template examples:
 >  kubectl get pods --all-namespaces
 =>>>>>> make sure the function is fully running, and the openfaas GUI should have "ready" state for this function
 >  kubectl describe pod caerus-faas-spring-function-665968965f-kd4dg  -n openfaas-fn
-=>>>>>> if the function state is an error, troubleshoot the pod and docker
-> kubectl describe pod caerus-faas-scala-function-665968965f-kd4dg  -n openfaas-fn
+=>>>>>> if the function state is an error, troubleshoot the logs for pod and docker
+> kubectl logs caerus-faas-spring-function-665968965f-kd4dg -n openfaas-fn
+=>>>>>> or live troubleshooting by logging into pod/container
+> kubectl exec -it caerus-faas-spring-thumbnail-75d46c5bbd-lvnkt -n openfaas-fn -c caerus-faas-spring-thumbnail sh 
+
 > echo Hi | faas invoke caerus-faas-scala-function
 =>>>>>> Or use openfaas GUI to set input params and invoke
 ```
