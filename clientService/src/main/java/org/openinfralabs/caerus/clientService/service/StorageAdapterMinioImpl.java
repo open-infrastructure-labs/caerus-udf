@@ -3,6 +3,7 @@ package org.openinfralabs.caerus.clientService.service;
 import com.amazonaws.services.s3.event.S3EventNotification;
 import io.minio.*;
 import io.minio.messages.Bucket;
+import io.minio.messages.Item;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.openinfralabs.caerus.clientService.model.UdfInvocationMetadata;
@@ -18,7 +19,13 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import java.io.*;
 import java.net.URI;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
+import java.util.TimeZone;
+
 
 import org.openinfralabs.caerus.clientService.model.Udf;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -53,6 +60,27 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
     final String bucketNamePath = "bucketName";
     final String objectKeyPath = "objectKey";
     final String DEFAULT_INPUT_PARAMETERS_KEY = "inputParameters";
+
+    private class Object_Info {
+        String _objName;
+        String _objSize;
+        String _commarSeparatedMetadata;
+
+        public Object_Info(String objName, String objSize, String commarSeparatedMetadata) {
+            _objName = objName;
+            _objSize = objSize;
+            _commarSeparatedMetadata = commarSeparatedMetadata;
+        }
+
+        public List<String> toStringList() {
+            List<String> result = new ArrayList<String>();
+            result.add(_objName);
+            result.add(_objSize);
+            result.add(_commarSeparatedMetadata);
+            return result;
+        }
+
+    }
 
     @Autowired
     MinioClient minioClient;
@@ -207,8 +235,40 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
     }
 
     @Override
-    public byte[] getFile(String bucket, String key, UdfInvocationMetadata metadata) {
+    public byte[] getFile(String bucket, String key, UdfInvocationMetadata metadata, Map<String, String> headersMap) {
+        // metadata is for future use
+
+        /*
+            HTTP/1.1 200 OK
+            x-amz-id-2: eftixk72aD6Ap51TnqcoF8eFidJG9Z/2mkiDFu8yU9AS1ed4OpIszj7UDNEHGran
+            x-amz-request-id: 318BC8BC148832E5
+            Date: Wed, 28 Oct 2009 22:32:00 GMT
+            Last-Modified: Wed, 12 Oct 2009 17:50:00 GMT
+            x-amz-expiration: expiry-date="Fri, 23 Dec 2012 00:00:00 GMT", rule-id="picture-deletion-rule"
+            ETag: "fba9dede5f27731c9771645a39863328"
+            Content-Length: 434234
+            Content-Type: text/plain
+
+            [434234 bytes of object data]
+         */
         try {
+
+            // get content-length etc first, also valdiate if the file is there
+            StatObjectResponse objectStat =
+                    minioClient.statObject(
+                            StatObjectArgs.builder().bucket(bucket).object(key).build());
+            headersMap.put("Last-Modified", objectStat.lastModified().toString());
+            headersMap.put("ETag", objectStat.etag());
+            headersMap.put("Content-Length", Long.toString(objectStat.size()));
+            headersMap.put("Content-Type", objectStat.contentType());
+
+            DateFormat df = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss z");
+            df.setTimeZone(TimeZone.getTimeZone("GMT"));
+            Date now = new Date();
+            headersMap.put("Date", df.format(now));
+
+
+
             InputStream obj = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(bucket)
@@ -227,12 +287,137 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
 
 
     @Override
-    public void deleteFile(String bucket, String key, UdfInvocationMetadata metadata) {
+    public boolean deleteFile(String bucket, String key, UdfInvocationMetadata metadata) {
+        // metadata is for future use
         try {
             minioClient.removeObject(
                     RemoveObjectArgs.builder().bucket(bucket).object(key).build());
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
+        return true;
+    }
+
+
+    @Override
+    public boolean copyObject(String fromBucket, String toBucket, String sourceObjKey, String targetObjKey, UdfInvocationMetadata metadata, StringBuilder sb) {
+        // metadata is for future use
+        try {
+
+            minioClient.copyObject(
+                    CopyObjectArgs.builder()
+                            .bucket(toBucket)
+                            .object(targetObjKey)
+                            .source(
+                                    CopySource.builder()
+                                            .bucket(fromBucket)
+                                            .object(sourceObjKey)
+                                            .build())
+                            .build());
+
+            /*<?xml version="1.0" encoding="UTF-8"?>
+                <CopyObjectResult>
+                  <LastModified>2009-10-28T22:32:00</LastModified>
+                  <ETag>"9b2cf535f27731c974343645a3985328"</ETag>
+               <CopyObjectResult>*/
+
+            StatObjectResponse stat = minioClient.statObject(
+                    StatObjectArgs.builder().bucket(toBucket).object(targetObjKey).build());
+            String lastModifiedStr = stat.lastModified().toString();
+            String etagStr = stat.etag();
+
+            String content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+            sb.append(content);
+            sb.append("<CopyObjectResult>\n");
+            String lastModified = "<LastModified>" + lastModifiedStr + "</LastModified>\n";
+            sb.append(lastModified);
+            String etag = "<ETag>" + etagStr + "</ETag>\n";
+            sb.append(etag);
+            sb.append("</CopyObjectResult>\n");
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean listObjects(String bucket, StringBuilder sb) {
+        /*
+        <?xml version="1.0" encoding="UTF-8"?>
+            <ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+                <Name>bucket</Name>
+                <Prefix/>
+                <KeyCount>205</KeyCount>
+                <MaxKeys>1000</MaxKeys>
+                <IsTruncated>false</IsTruncated>
+                <Contents>
+                    <Key>my-image.jpg</Key>
+                    <LastModified>2009-10-12T17:50:30.000Z</LastModified>
+                    <ETag>"fba9dede5f27731c9771645a39863328"</ETag>
+                    <Size>434234</Size>
+                    <StorageClass>STANDARD</StorageClass>
+                </Contents>
+                <Contents>
+                   ...
+                </Contents>
+                ...
+            </ListBucketResult>
+         */
+
+
+        sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">");
+
+        sb.append("<Name>" + bucket +"</Name>\n");
+        sb.append("<Prefix/>\n");
+
+        List<String> objectsInfo = new ArrayList<String>();
+
+        Iterable<Result<Item>> results = minioClient.listObjects(
+                ListObjectsArgs.builder().bucket(bucket).maxKeys(100).build());
+
+
+        int count = 0;
+        StringBuilder contentsBuilder = new StringBuilder();
+        for (Result<Item> result : results) {
+          try {
+              String objName = result.get().objectName();
+              String objSize = Long.toString(result.get().size());
+              String lastModified = result.get().lastModified().toString();
+              String etag = result.get().etag();
+              String storageClass = result.get().storageClass();
+
+              contentsBuilder.append("<Contents>\n");
+              contentsBuilder.append("<Key>" + objName + "</Key>\n");
+              contentsBuilder.append("<LastModified>" + lastModified + "</LastModified>\n");
+              contentsBuilder.append("<ETag>" + etag +"</ETag>\n");
+              contentsBuilder.append("<Size>" + objSize + "</Size>\n");
+              contentsBuilder.append("<StorageClass>" + storageClass + "</StorageClass>\n");
+              contentsBuilder.append("</Contents>\n");
+
+              count++;
+
+          } catch (Exception e) {
+              e.printStackTrace();
+              return false;
+          }
+        }
+
+        sb.append("<KeyCount>" + count + "</KeyCount>\n");
+        sb.append("<MaxKeys>100</MaxKeys>\n");
+        boolean isTruncated = false;
+        if (count <= 100)
+            sb.append("<IsTruncated>false</IsTruncated>\n");
+        else
+            sb.append("<IsTruncated>true</IsTruncated>\n");
+
+        sb.append(contentsBuilder.toString());
+        sb.append("</ListBucketResult>\n");
+
+        return true;
     }
 }
