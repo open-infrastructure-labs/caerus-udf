@@ -61,27 +61,6 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
     final String objectKeyPath = "objectKey";
     final String DEFAULT_INPUT_PARAMETERS_KEY = "inputParameters";
 
-    private class Object_Info {
-        String _objName;
-        String _objSize;
-        String _commarSeparatedMetadata;
-
-        public Object_Info(String objName, String objSize, String commarSeparatedMetadata) {
-            _objName = objName;
-            _objSize = objSize;
-            _commarSeparatedMetadata = commarSeparatedMetadata;
-        }
-
-        public List<String> toStringList() {
-            List<String> result = new ArrayList<String>();
-            result.add(_objName);
-            result.add(_objSize);
-            result.add(_commarSeparatedMetadata);
-            return result;
-        }
-
-    }
-
     @Autowired
     MinioClient minioClient;
 
@@ -268,7 +247,6 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
             headersMap.put("Date", df.format(now));
 
 
-
             InputStream obj = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(bucket)
@@ -372,7 +350,7 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">");
 
-        sb.append("<Name>" + bucket +"</Name>\n");
+        sb.append("<Name>" + bucket + "</Name>\n");
         sb.append("<Prefix/>\n");
 
         List<String> objectsInfo = new ArrayList<String>();
@@ -384,27 +362,27 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
         int count = 0;
         StringBuilder contentsBuilder = new StringBuilder();
         for (Result<Item> result : results) {
-          try {
-              String objName = result.get().objectName();
-              String objSize = Long.toString(result.get().size());
-              String lastModified = result.get().lastModified().toString();
-              String etag = result.get().etag();
-              String storageClass = result.get().storageClass();
+            try {
+                String objName = result.get().objectName();
+                String objSize = Long.toString(result.get().size());
+                String lastModified = result.get().lastModified().toString();
+                String etag = result.get().etag();
+                String storageClass = result.get().storageClass();
 
-              contentsBuilder.append("<Contents>\n");
-              contentsBuilder.append("<Key>" + objName + "</Key>\n");
-              contentsBuilder.append("<LastModified>" + lastModified + "</LastModified>\n");
-              contentsBuilder.append("<ETag>" + etag +"</ETag>\n");
-              contentsBuilder.append("<Size>" + objSize + "</Size>\n");
-              contentsBuilder.append("<StorageClass>" + storageClass + "</StorageClass>\n");
-              contentsBuilder.append("</Contents>\n");
+                contentsBuilder.append("<Contents>\n");
+                contentsBuilder.append("<Key>" + objName + "</Key>\n");
+                contentsBuilder.append("<LastModified>" + lastModified + "</LastModified>\n");
+                contentsBuilder.append("<ETag>" + etag + "</ETag>\n");
+                contentsBuilder.append("<Size>" + objSize + "</Size>\n");
+                contentsBuilder.append("<StorageClass>" + storageClass + "</StorageClass>\n");
+                contentsBuilder.append("</Contents>\n");
 
-              count++;
+                count++;
 
-          } catch (Exception e) {
-              e.printStackTrace();
-              return false;
-          }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
 
         sb.append("<KeyCount>" + count + "</KeyCount>\n");

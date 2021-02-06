@@ -20,6 +20,7 @@ import java.io.*;
 import java.util.*;
 
 import org.openinfralabs.caerus.clientService.model.UdfInvocationMetadata;
+
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -35,12 +36,12 @@ public class StorageController {
     StorageAdapter adapter;
 
 
-    // This is to downlaod a object from a S3 bucket
+    // This is to download a object from a S3 bucket
     @GetMapping("{bucket}/{objKey}")
     public ResponseEntity<byte[]
             > getObject(@PathVariable String bucket, @PathVariable String objKey,
-                                              @RequestHeader Map<String, String> headers,
-                                              HttpServletRequest request) throws IOException {
+                        @RequestHeader Map<String, String> headers,
+                        HttpServletRequest request) throws IOException {
 
         // metadata is for future use
         UdfInvocationMetadata metadataObj = new UdfInvocationMetadata();
@@ -53,7 +54,7 @@ public class StorageController {
             responseHeaders.add(entry.getKey(), entry.getValue());
         }
 
-        if (data != null){
+        if (data != null) {
             return new ResponseEntity<byte[]>(data, responseHeaders, HttpStatus.OK);
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -64,7 +65,7 @@ public class StorageController {
     @DeleteMapping("{bucket}/{objKey}")
     public ResponseEntity<String> deleteObjects(@PathVariable String bucket, @PathVariable String objKey,
                                                 @RequestHeader Map<String, String> headers,
-                                              HttpServletRequest request) throws IOException {
+                                                HttpServletRequest request) throws IOException {
         UdfInvocationMetadata metadataObj = new UdfInvocationMetadata();
         boolean success = adapter.deleteFile(bucket, objKey, metadataObj);
         if (success)
@@ -94,114 +95,114 @@ public class StorageController {
                                                  @RequestBody MultipartFile file,
                                                  HttpServletRequest request) throws IOException {
 
-            if (headers.containsKey("x-amz-copy-source")) {
+        if (headers.containsKey("x-amz-copy-source")) {
 
-                String bucketAndKey = headers.get("x-amz-copy-source");
-                // format likes this: \bucket\objkey?nnnnnn
-                // where objkey might have format like: \photos\2020\feb\image1.jpg
-                String [] temp = bucketAndKey.split("\\/");
-                if (temp.length < 3) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-                }
-
-                String srcBucket = temp[1];
-                String srcObjKey;
-                String joinedSrcKeyCombo = temp[2];
-
-                for (int i = 3; i < temp.length; i++) {
-                    joinedSrcKeyCombo = String.join(temp[i]);
-                }
-
-                srcObjKey = joinedSrcKeyCombo;
-                if (joinedSrcKeyCombo.contains("?")) {
-                    String [] keys = joinedSrcKeyCombo.split("\\?");
-                    srcObjKey = keys[0];
-                }
-
-                StringBuilder contentXMLBuilder = new StringBuilder();
-                UdfInvocationMetadata metadata = new UdfInvocationMetadata();
-                boolean success = adapter.copyObject(srcBucket, bucket, srcObjKey, filename, metadata, contentXMLBuilder);
-
-                if (success) {
-                    return new ResponseEntity<String>(contentXMLBuilder.toString(), HttpStatus.CREATED);
-                } else {
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-                }
-            } else {
-                // this is putObject request
-
-                //doesn't work?
-                // InputStream inputStream =  new BufferedInputStream(request.getInputStream());
-                // https://www.baeldung.com/spring-reading-httpservletrequest-multiple-times
-
-
-                // NOTE: AWS SDK seems not follow the HTTP standard: when http 1.1 chunking is used, it should either have transfer-encoding
-                //  header and should not have content-length header, so we can only use http 1.1 protocol to decide if the chunking encoding is used
-                boolean useChunking = false;
-                String protocol = request.getProtocol();
-                if (protocol.compareToIgnoreCase("HTTP/1.1") == 0) {
-                    useChunking = true;
-                }
-
-                InputStream requestInputStream = request.getInputStream();
-                // we will probably have to cache because of the chunking
-                byte[] cachedBody = StreamUtils.copyToByteArray(requestInputStream);
-
-                ByteArrayInputStream inputStream;
-
-                if (useChunking) {
-
-                    byte[] unchunkedBody = unchunkdata(cachedBody);
-
-                    inputStream = new ByteArrayInputStream(unchunkedBody);
-                } else {
-                    inputStream = new ByteArrayInputStream(cachedBody);
-                }
-
-                // get metadata info from aws request headers
-                String function_name = headers.get((AWS_METADATA_PREFIX + FUNCTION_NAME_KEY).toLowerCase());
-                String comma_separated_inputParameters = headers.get((AWS_METADATA_PREFIX + FUNCTION_INPUTPARAMETERS_KEY).toLowerCase());
-
-                if (function_name == null || function_name.isEmpty() ||
-                        comma_separated_inputParameters == null || comma_separated_inputParameters.isEmpty()) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-                }
-
-
-                UdfInvocationMetadata metadataObj = new UdfInvocationMetadata();
-                metadataObj.setName(function_name);
-                String[] elements = comma_separated_inputParameters.split(", ");
-                List<String> inputParameters = Arrays.asList(elements);
-                metadataObj.setInputParameters(inputParameters);
-
-                adapter.uploadFile(bucket, filename, inputStream, metadataObj);
-
-                return ResponseEntity.ok("File uploaded and function invoked successfully.");
+            String bucketAndKey = headers.get("x-amz-copy-source");
+            // format likes this: \bucket\objkey?nnnnnn
+            // where objkey might have format like: \photos\2020\feb\image1.jpg
+            String[] temp = bucketAndKey.split("\\/");
+            if (temp.length < 3) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
+
+            String srcBucket = temp[1];
+            String srcObjKey;
+            String joinedSrcKeyCombo = temp[2];
+
+            for (int i = 3; i < temp.length; i++) {
+                joinedSrcKeyCombo = String.join(temp[i]);
+            }
+
+            srcObjKey = joinedSrcKeyCombo;
+            if (joinedSrcKeyCombo.contains("?")) {
+                String[] keys = joinedSrcKeyCombo.split("\\?");
+                srcObjKey = keys[0];
+            }
+
+            StringBuilder contentXMLBuilder = new StringBuilder();
+            UdfInvocationMetadata metadata = new UdfInvocationMetadata();
+            boolean success = adapter.copyObject(srcBucket, bucket, srcObjKey, filename, metadata, contentXMLBuilder);
+
+            if (success) {
+                return new ResponseEntity<String>(contentXMLBuilder.toString(), HttpStatus.CREATED);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            // this is putObject request
+
+            //doesn't work?
+            // InputStream inputStream =  new BufferedInputStream(request.getInputStream());
+            // https://www.baeldung.com/spring-reading-httpservletrequest-multiple-times
+
+
+            // NOTE: AWS SDK seems not follow the HTTP standard: when http 1.1 chunking is used, it should either have transfer-encoding
+            //  header and should not have content-length header, so we can only use http 1.1 protocol to decide if the chunking encoding is used
+            boolean useChunking = false;
+            String protocol = request.getProtocol();
+            if (protocol.compareToIgnoreCase("HTTP/1.1") == 0) {
+                useChunking = true;
+            }
+
+            InputStream requestInputStream = request.getInputStream();
+            // we will probably have to cache because of the chunking
+            byte[] cachedBody = StreamUtils.copyToByteArray(requestInputStream);
+
+            ByteArrayInputStream inputStream;
+
+            if (useChunking) {
+
+                byte[] unchunkedBody = unchunkdata(cachedBody);
+
+                inputStream = new ByteArrayInputStream(unchunkedBody);
+            } else {
+                inputStream = new ByteArrayInputStream(cachedBody);
+            }
+
+            // get metadata info from aws request headers
+            String function_name = headers.get((AWS_METADATA_PREFIX + FUNCTION_NAME_KEY).toLowerCase());
+            String comma_separated_inputParameters = headers.get((AWS_METADATA_PREFIX + FUNCTION_INPUTPARAMETERS_KEY).toLowerCase());
+
+            if (function_name == null || function_name.isEmpty() ||
+                    comma_separated_inputParameters == null || comma_separated_inputParameters.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+
+            UdfInvocationMetadata metadataObj = new UdfInvocationMetadata();
+            metadataObj.setName(function_name);
+            String[] elements = comma_separated_inputParameters.split(", ");
+            List<String> inputParameters = Arrays.asList(elements);
+            metadataObj.setInputParameters(inputParameters);
+
+            adapter.uploadFile(bucket, filename, inputStream, metadataObj);
+
+            return ResponseEntity.ok("File uploaded and function invoked successfully.");
+        }
 
     }
 
 
     @PostMapping(path = "/upload", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ApiOperation(value = "Upload object to object store, while invoke specified UDF.",
-                notes = "Send via an input form with followings:" +
+            notes = "Send via an input form with followings:" +
                     "   1. bucket name in 'bucket', " +
                     "   2. a MultipartFile in 'uploadFile'. " +
                     "   3. an optional udf metadata in json, it includes followings:" +
-                        "            private String name;\n" +
-                        "            (optional) private List<String> inputParameters;\n" +
-                        "            (optional) private List<String> extraResources;" +
-                        "or curl command: " +
-                        "curl --location --request POST 'localhost:8000/upload' \\\n" +
-                        "--form 'bucket=\"b100\"' \\\n" +
-                        "--form 'uploadFile=@\"/home/ubuntu/images/new/sample0.jpg\"' \\\n" +
-                        "--form 'metadata=\"{   \\\"name\\\": \\\"caerus-faas-spring-thumbnail\\\",\n" +
-                        "    \\\"inputParameters\\\": [\\\"400\\\", \\\"600\\\"]\n" +
-                        "}\";type=application/json'" )
-    public Map<String, String> uploadFile(@RequestParam("bucket") String bucket, @RequestParam("uploadFile") MultipartFile file, @RequestParam("metadata") Optional<String> metadata ) throws IOException {
+                    "            private String name;\n" +
+                    "            (optional) private List<String> inputParameters;\n" +
+                    "            (optional) private List<String> extraResources;" +
+                    "or curl command: " +
+                    "curl --location --request POST 'localhost:8000/upload' \\\n" +
+                    "--form 'bucket=\"b100\"' \\\n" +
+                    "--form 'uploadFile=@\"/home/ubuntu/images/new/sample0.jpg\"' \\\n" +
+                    "--form 'metadata=\"{   \\\"name\\\": \\\"caerus-faas-spring-thumbnail\\\",\n" +
+                    "    \\\"inputParameters\\\": [\\\"400\\\", \\\"600\\\"]\n" +
+                    "}\";type=application/json'")
+    public Map<String, String> uploadFile(@RequestParam("bucket") String bucket, @RequestParam("uploadFile") MultipartFile file, @RequestParam("metadata") Optional<String> metadata) throws IOException {
 
         String filename = file.getOriginalFilename();
-        InputStream inputStream =  new BufferedInputStream(file.getInputStream());
+        InputStream inputStream = new BufferedInputStream(file.getInputStream());
 
         UdfInvocationMetadata metadataObj = getMetadataObject(metadata);
 
@@ -238,7 +239,7 @@ public class StorageController {
 
     }
 
-    private UdfInvocationMetadata getMetadataObject (Optional<String> metadata) {
+    private UdfInvocationMetadata getMetadataObject(Optional<String> metadata) {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new Jdk8Module());
