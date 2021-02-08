@@ -1,11 +1,11 @@
-package org.openinfralabs.caerus.clientService.controller;
+package org.openinfralabs.caerus.ndpService.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.httpclient.ChunkedInputStream;
 
-import org.openinfralabs.caerus.clientService.service.StorageAdapter;
+import org.openinfralabs.caerus.ndpService.service.StorageAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.util.*;
 
-import org.openinfralabs.caerus.clientService.model.UdfInvocationMetadata;
+import org.openinfralabs.caerus.ndpService.model.UdfInvocationMetadata;
 
 import javax.servlet.http.HttpServletRequest;
 

@@ -1,10 +1,6 @@
-package org.openinfralabs.caerus.clientService.model;
-
-import io.swagger.annotations.ApiModel;
-import lombok.Data;
+package org.openinfralabs.caerus.ndpService.model;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.Column;

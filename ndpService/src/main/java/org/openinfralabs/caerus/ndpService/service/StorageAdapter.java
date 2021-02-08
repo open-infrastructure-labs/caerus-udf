@@ -1,10 +1,8 @@
-package org.openinfralabs.caerus.clientService.service;
+package org.openinfralabs.caerus.ndpService.service;
 
-import org.openinfralabs.caerus.clientService.model.UdfInvocationMetadata;
-import org.springframework.http.HttpHeaders;
+import org.openinfralabs.caerus.ndpService.model.UdfInvocationMetadata;
 
 import java.io.InputStream;
-import java.util.List;
 import java.util.Map;
 
 public interface StorageAdapter {

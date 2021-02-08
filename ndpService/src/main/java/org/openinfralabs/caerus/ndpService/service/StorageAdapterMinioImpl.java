@@ -1,43 +1,33 @@
-package org.openinfralabs.caerus.clientService.service;
+package org.openinfralabs.caerus.ndpService.service;
 
-import com.amazonaws.services.s3.event.S3EventNotification;
 import io.minio.*;
-import io.minio.messages.Bucket;
 import io.minio.messages.Item;
 import org.apache.commons.io.IOUtils;
-import org.joda.time.DateTime;
-import org.openinfralabs.caerus.clientService.model.UdfInvocationMetadata;
+import org.openinfralabs.caerus.ndpService.model.UdfInvocationMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
 import java.io.*;
-import java.net.URI;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
 import java.util.TimeZone;
 
 
-import org.openinfralabs.caerus.clientService.model.Udf;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.openinfralabs.caerus.ndpService.model.Udf;
 
 
 // SERVERLESS related imports
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 
 
 import io.swagger.client.ApiException;

@@ -1,4 +1,4 @@
-package org.openinfralabs.caerus.clientService.config;
+package org.openinfralabs.caerus.ndpService.config;
 
 import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Value;

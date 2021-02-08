@@ -1,20 +1,13 @@
-package org.openinfralabs.caerus.clientService.interceptor;
+package org.openinfralabs.caerus.ndpService.interceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openinfralabs.caerus.clientService.model.UdfInvocationMetadata;
-import org.openinfralabs.caerus.clientService.service.StorageAdapter;
+import org.openinfralabs.caerus.ndpService.service.StorageAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.util.*;
 
 @Component
 public class AdminInterceptor implements HandlerInterceptor {

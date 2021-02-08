@@ -1,6 +1,6 @@
-package org.openinfralabs.caerus.clientService.config;
+package org.openinfralabs.caerus.ndpService.config;
 
-import org.openinfralabs.caerus.clientService.interceptor.AdminInterceptor;
+import org.openinfralabs.caerus.ndpService.interceptor.AdminInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

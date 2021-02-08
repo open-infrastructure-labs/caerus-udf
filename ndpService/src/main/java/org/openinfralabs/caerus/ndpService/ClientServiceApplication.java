@@ -1,4 +1,4 @@
-package org.openinfralabs.caerus.clientService;
+package org.openinfralabs.caerus.ndpService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

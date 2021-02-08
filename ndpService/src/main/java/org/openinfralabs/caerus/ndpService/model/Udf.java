@@ -1,4 +1,4 @@
-package org.openinfralabs.caerus.clientService.model;
+package org.openinfralabs.caerus.ndpService.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
