@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.openinfralabs.caerus</groupId>
-	<artifactId>UdfService</artifactId>
+	<artifactId>EventListenerService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>UdfService</name>
+	<name>EventListenService</name>
 	<description>REST APIs to register UDFs, handle events and invoke UDFs</description>
 
 	<properties>
