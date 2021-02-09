@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.openinfralabs.caerus</groupId>
-	<artifactId>clientService</artifactId>
+	<artifactId>ndpService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>clientService</name>
-	<description>Caerus object client service that can accept UDF metadata while upload/download/delete object </description>
+	<name>ndpService</name>
+	<description>Caerus object ndp service that can accept storage requests, e.g. upload/download/delete/copy/list object, while directly invoke UDF.</description>
 
 	<properties>
 		<java.version>1.8</java.version>

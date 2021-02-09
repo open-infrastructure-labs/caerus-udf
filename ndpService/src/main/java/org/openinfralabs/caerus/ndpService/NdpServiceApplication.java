@@ -15,10 +15,10 @@ import java.util.Collections;
 
 @SpringBootApplication
 @EnableSwagger2
-public class ClientServiceApplication {
+public class NdpServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ClientServiceApplication.class, args);
+		SpringApplication.run(NdpServiceApplication.class, args);
 	}
 
 	@Bean
