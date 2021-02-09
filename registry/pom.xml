@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.openinfralabs.caerus</groupId>
-	<artifactId>Udf-Registry</artifactId>
+	<artifactId>udfRegistryService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Udf-Registry</name>
+	<name>udfRegistryService</name>
 	<description>REST API to manage UDFs in Redis and Object Storage</description>
 
 	<properties>
