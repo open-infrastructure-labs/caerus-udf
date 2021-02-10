@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.*;
 import java.text.DateFormat;
@@ -20,19 +23,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 
-import org.openinfralabs.caerus.ndpService.model.Udf;
 
-
-// SERVERLESS related imports
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-
-
-import io.swagger.client.ApiException;
-import io.swagger.client.api.DefaultApi;
-import io.swagger.client.model.FunctionListEntry;
 
 @Service
 public class StorageAdapterMinioImpl implements StorageAdapter {
@@ -42,13 +33,13 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
 
     Logger logger = LoggerFactory.getLogger(StorageAdapterMinioImpl.class);
 
-    final String udf_registry_service_uri = "http://localhost:8080/udf/";
-    final String udf_docker_uri = "http://localhost:8090/";
+    final String udfService_uri = "http://localhost:8383/";
     final String invocation_event_put = "put";
     final String invocation_event_access = "get";
     final String invocation_event_delete = "delete";
     final String bucketNamePath = "bucketName";
     final String objectKeyPath = "objectKey";
+    final String DEFAULT_UDF_KEY = "udfKey";
     final String DEFAULT_INPUT_PARAMETERS_KEY = "inputParameters";
 
     @Autowired
@@ -104,98 +95,35 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
 
             // see if there is udf metadata
             if (metadata != null) {
-                //1. validate via registry service
 
-                String udfKey = metadata.getName();
+                RestTemplate udfServiceTemplate = new RestTemplate();
 
-                if (!SERVERLESS) {
-                    RestTemplate restTemplate = new RestTemplate();
+                String path = udfService_uri + bucket + "/" + filename;
 
+                Map<String, String> params = new HashMap<String, String>();
+                params.put(DEFAULT_UDF_KEY, metadata.getName());
 
-                    Udf udf = restTemplate.getForObject(udf_registry_service_uri + udfKey, Udf.class);
-                    if (udf != null) {
-                        logger.info("found udf in the registry: " + udfKey);
-                    } else {
-                        logger.error("no udf found in the registry, so ignore udf invocation.");
-                        return;
-                    }
-
-                    //2. TODO: need automate the deploy of udf
-
-                    //3. invoke udf via udf service
-
-                    RestTemplate udfRestTemplate = new RestTemplate();
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put(bucketNamePath, bucket);
-                    params.put(objectKeyPath, filename);
-
-                    String path = udf_docker_uri + bucket + "/" + filename;
-
-                    if (!userMetadata.isEmpty() && userMetadata.containsKey(DEFAULT_INPUT_PARAMETERS_KEY)) {
-                        String inputParametersCommaSeparated = userMetadata.get(DEFAULT_INPUT_PARAMETERS_KEY);
-                        path = path + "/" + "?" + DEFAULT_INPUT_PARAMETERS_KEY + "=" + inputParametersCommaSeparated;
-                    }
-                    ResponseEntity<String> responseEntity = udfRestTemplate.getForEntity(path, String.class, params);
-                    boolean isOK = responseEntity.getStatusCode().equals(HttpStatus.OK);
-                    if (isOK)
-                        logger.info("UDF invoked successfully: " + filename);
-                    else
-                        logger.error("UDF invoked failed: " + filename);
-
-                } else { //SERVERLESS MODE
-
-                    DefaultApi apiInstance = new DefaultApi();
-
-                    // check if the function name is in the openfaas deployed function list
-                    // don't re-throw exception here, just log the error, since we did main task of storage operations like put, delete...
-
-                    try {
-                        FunctionListEntry result = apiInstance.systemFunctionFunctionNameGet(udfKey);
-                        //System.out.println(result);
-                    } catch (ApiException e) {
-                        System.err.println("Exception when calling DefaultApi#systemFunctionFunctionNameGet");
-                        e.printStackTrace();
-                        logger.error("no function found in the Openfaas deployed function list, so ignore invocation: udfKey = " + udfKey);
-                        return;
-                    }
-
-
-                    JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty(bucketNamePath, bucket);
-                    jsonObject.addProperty(objectKeyPath, filename);
-
-
-                    byte[] inputBytes = new byte[]{};
-
-                    if (!userMetadata.isEmpty() && userMetadata.containsKey(DEFAULT_INPUT_PARAMETERS_KEY)) {
-                        String inputParametersCommaSeparated = userMetadata.get(DEFAULT_INPUT_PARAMETERS_KEY);
-                        List<String> list = Arrays.asList(inputParametersCommaSeparated.split(","));
-                        String innerObjStr = new Gson().toJson(list);
-                        JsonElement jsonElement = new JsonParser().parse(innerObjStr);
-
-                        jsonObject.add(DEFAULT_INPUT_PARAMETERS_KEY, jsonElement);
-
-
-                        String jsonStr = jsonObject.toString();
-                        inputBytes = jsonStr.getBytes();
-                    }
-
-
-                    try {
-                        apiInstance.functionFunctionNamePost(udfKey, inputBytes);
-                    } catch (ApiException e) {
-                        System.err.println("Exception when calling DefaultApi#functionFunctionNamePost");
-                        logger.error("UDF invoked failed");
-                        e.printStackTrace();
-                        return;
-
-                    }
+                if (!userMetadata.isEmpty() && userMetadata.containsKey(DEFAULT_INPUT_PARAMETERS_KEY)) {
+                    String inputParametersCommaSeparated = userMetadata.get(DEFAULT_INPUT_PARAMETERS_KEY);
+                    params.put(DEFAULT_INPUT_PARAMETERS_KEY, inputParametersCommaSeparated);
                 }
 
-                logger.info("UDF invoked successfully");
+                UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(path);
+                MultiValueMap<String, String> paramsMVMap = new LinkedMultiValueMap<>();
+                paramsMVMap.setAll(params);
+                if (!paramsMVMap.isEmpty()) {
+                    uriBuilder.queryParams(paramsMVMap);
+                }
+
+                ResponseEntity<String> responseEntity = udfServiceTemplate.getForEntity(uriBuilder.build().encode().toUri(), String.class);
+
+                boolean isOK = responseEntity.getStatusCode().equals(HttpStatus.OK);
+                if (isOK)
+                    logger.info("UDF invoked successfully: " + filename);
+                else
+                    logger.error("UDF invoked failed: " + filename);
 
             }
-
 
         } catch (Exception e) {
             logger.error("Error occurred: " + e);

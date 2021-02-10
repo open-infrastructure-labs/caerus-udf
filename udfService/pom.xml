@@ -5,21 +5,18 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.4.0</version>
+		<version>2.4.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.openinfralabs.caerus</groupId>
-	<artifactId>ndpService</artifactId>
+	<artifactId>udfService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ndpService</name>
-	<description>Caerus object ndp service that can accept storage requests, e.g. upload/download/delete/copy/list object, while directly invoke UDF.</description>
-
+	<name>udfService</name>
+	<description>UDF service to process the UDF invocation request</description>
 	<properties>
-		<java.version>1.8</java.version>
-		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<!-- <java.version>11</java.version> -->
 		<springfox-version>2.9.2</springfox-version>
-		<springweb-version>5.3.3</springweb-version>
+
 		<!--- Following properties are serverless related-->
 		<gson-fire-version>1.8.0</gson-fire-version>
 		<swagger-core-version>1.5.15</swagger-core-version>
@@ -32,12 +29,8 @@
 		<httpclient-version>3.1</httpclient-version>
 		<json-version>20201115</json-version>
 	</properties>
-
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
-		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -47,41 +40,6 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.8.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
-			<version>${springweb-version}</version>
-		</dependency>
-
-		<!--SpringFox dependencies -->
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-			<version>${springfox-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
-			<version>${springfox-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-s3</artifactId>
-			<version>1.11.894</version>
-		</dependency>
-
-		<dependency>
-			<groupId>io.minio</groupId>
-			<artifactId>minio</artifactId>
-			<version>8.0.3</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.squareup.okhttp3</groupId>
-					<artifactId>okhttp</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -100,21 +58,43 @@
 			<version>2.2</version>
 		</dependency>
 
+		<!--SpringFox dependencies -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.junit.vintage</groupId>
-					<artifactId>junit-vintage-engine</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>${springfox-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>${springfox-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>${swagger-core-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${gson-version}</version>
 		</dependency>
 
 
-
-
+		<dependency>
+			<groupId>com.cloudatio.openfaas</groupId>
+			<artifactId>openfaas-client</artifactId>
+			<version>0.0.1</version>
+			<!-- <scope>system</scope>
+			<systemPath>${project.basedir}/src/main/resources/openfaas-client-0.0.1.jar</systemPath>
+			-->
+			<!--- TODO: find a solution to solve runtime noclassfoundexception issue, for now, manual add local jar to mvn repositories
+			root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/service#
+			mvn org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file -Dfile=src/main/resources/openfaas-client-0.0.1.jar
+		    -->
+		</dependency>
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
@@ -155,21 +135,11 @@
 			<version>${json-version}</version>
 		</dependency>
 
-
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit-version}</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-			<version>${httpclient-version}</version>
-		</dependency>
-
-
 	</dependencies>
 
 	<build>
