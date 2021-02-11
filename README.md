@@ -11,7 +11,7 @@ Caerus UDF allows user to define, register, upload, and invoke user define funct
 * Work with any workflows, compute platforms, and programming languages in Big Data Analytics and AI
 * Have the potential for further UDF acceleration (future TODO) by taking advantage storage-side hardware (CPU, GPU, FPGA, Smart SSD etc.) and software (caching and indexing)
 * Has the same customer benefits as general Near Data Processing:   
-  * Significantly reduce network traffic
+  * Significantly reduce network traffic between compute and storage layers
   * Reduce storage I/O in most of the cases
   * Speed up overall processing time
   * Mitigate the “too big to eat” problem
@@ -38,7 +38,7 @@ The software components of Caerus UDF support are listed as follows:
     1.	**Docker Hub**: In serverless mode, we will use Openfaas scheme which uses Docker Hub (public and private) as UDFs repository 
 1.	**Caerus Faas**: 
      1. **Caerus Faas Client**: A modified version of Openfaas client library (from a public github source) that is part of the Caerus UDF Service, allow it to send request to Openfaas framework in serverless mode. Our major contributions are adding authentication support, updating code and depend libraries (e.g. from okhttp to okhttp3 etc.).
-     1. **Openfaas Framework**: A set of commands, configurations and instrcutions to set up Openfaas platform for Caerus UDF support.  
+     1. **Openfaas Server-side Framework**: A set of commands, configurations and instrcutions to set up Openfaas platform for Caerus UDF support.  
 1.	**Caerus S3 CLI (with UDF support)**: A CLI built based on AWS S3 SDK that can support standard storage operations by using standard AWS S3 protocols, PUT, GET, DELETE, COPY and LIST with UDF support. The major difference of this CLI comparing with other similar product is that we have the ability to process UDF request as part of storage requests for direct invocation of UDFs.  
 1.	**Caerus UDF Functions**: 
     1.	A complete **serverless UDF** example that compiles, publishes and deploys UDF as an Openfaas serverless function that combines user defined function and common boilerplate code. It will read/write to storage directly via storage client. 
