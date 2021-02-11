@@ -26,9 +26,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 
-import io.swagger.client.ApiException;
-import io.swagger.client.api.DefaultApi;
-import io.swagger.client.model.FunctionListEntry;
+import org.openinfralabs.caerus.openfaasClient.ApiException;
+import org.openinfralabs.caerus.openfaasClient.api.DefaultApi;
+import org.openinfralabs.caerus.openfaasClient.model.FunctionListEntry;
 
 @RestController
 public class RequestHandler {
