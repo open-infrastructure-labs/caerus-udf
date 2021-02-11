@@ -144,14 +144,20 @@ http://localhost:9000/minio/thumbnailsbucket/
 14. Explicitly call a UDF while upload/download/delete object, use Postman or curl command.
 In following example, upon uploading an image file "sample.jpg" to storage, invoke a UDF "thumbnail" to create a thumbnail image
 with input parameters of width=400 and height=600, the thumbnail image is then upload to storage (default location bucket "thumbnailsbucket"):
-```
-curl --location --request POST 'localhost:8000/upload' \
---form 'bucket=b100' \
---form 'uploadFile=@/home/ubuntu/images/new/sample.jpg' \
---form 'metadata={   "name": "thumbnail",
-    "inputParameters": ["400", "600"]
-}'
-```
+    * using Caerus S3client:
+    ```
+    root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/s3client/target# java -jar s3client-0.0.1-SNAPSHOT.jar put -b testbucket -f "/home/ubuntu/images/new/sample3.jpg" -k sample3.jpg -u caerus-faas-spring-thumbnail -i "400, 600"
+    ```
+
+    * Or using following command:
+    ```
+    curl --location --request POST 'localhost:8000/upload' \
+    --form 'bucket=b100' \
+    --form 'uploadFile=@/home/ubuntu/images/new/sample.jpg' \
+    --form 'metadata={   "name": "thumbnail",
+        "inputParameters": ["400", "600"]
+    }'
+    ```
 15. Check storage to see the metadata tag info:
 ```
 root@ubuntu1804:/home/ubuntu# mc stat minio/b100/sample0.jpg
@@ -204,4 +210,4 @@ root@ubuntu1804:/home/ubuntu#
   root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail# 
 > docker run -d --network host  localhost:5000/thumbnail:0.0.1-SNAPSHOT
 ```
-3. run above step 10-15 
+3. run above step 10-15
