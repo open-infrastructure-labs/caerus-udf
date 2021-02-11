@@ -1,6 +1,14 @@
 # Caerus UDF Support
 
-Caerus UDF allows user to define, register, upload, and invoke user define function that can directly operate on storage. The UDF invocation can be achieved either via explicit call or via automatic event notification.
+![Caerus UDF Architecture](https://github.com/futurewei-cloud/caerus/blob/master/images/Caerus%20UDF%20Architecture%20(small).jpg)
+
+Caerus UDF allows user to define, register, upload, and invoke user define function that can directly operate on storage side. The UDF invocation can be achieved either via explicit call or via automatic event notification.
+
+# Major Benefits of Caerus UDF Support
+
+# Major Features of Caerus UDF Support
+
+# Major Components of Caerus UDF Support
 
 There are three portions in this support:
 * UDF Service: allows dynamic registration of event notification, and provides REST APIs to allow explict invoking UDF.   
