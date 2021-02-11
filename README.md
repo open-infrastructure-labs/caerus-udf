@@ -1,12 +1,33 @@
-# Caerus UDF Support
+# Caerus User Defined Function (UDF) Support
 
 ![Caerus UDF Architecture](https://github.com/futurewei-cloud/caerus/blob/master/images/Caerus%20UDF%20Architecture%20(small).jpg)
 
 Caerus UDF allows user to define, register, upload, and invoke user define function that can directly operate on storage side. The UDF invocation can be achieved either via explicit call or via automatic event notification.
 
 # Major Benefits of Caerus UDF Support
+* Highly portable architecture that can be easily added to any storage system or cloud storage backend without the need of change stroage systems
+* First to support storage-side serverless archietcure option that is easy to deploy UDFs, lower cost, better scalabilty, and improved latency
+* First to support fully-automated event-driven UDF incvocations  
+* Work with any workflows, compute platforms, and programming languages in Big Data Analytics and AI
+* Have the potential for (future TODO) further UDF acceleration by taking advantage storage-side hardware (CPU, GPU, FPGA, Smart SSD etc.) and software (caching and indexing)
+* Has the same cuastomer benefits as general Near Data Processing:   
+  * Significantly reduce network traffic
+  * Reduce storage I/O in most of the cases
+  * Speed up overall processing time
+  * Mitigate the “too big to eat” problem
+  * Take full advantage of storage system resources 
+  * Reduce cost
+  * Ease of use
+  * Improve in data privacy and regulation
 
 # Major Features of Caerus UDF Support
+* Support options to run UDF with serverless framework (Openfaas) or standalone containers (Q3)
+* Support both fully-automated event-driven and direct invocation of UDFs
+* Support UDF invocation upon any storage operations like Get/Access, Put, Copy, and Delete
+* Support Spark UDF SQL integration (Q2)
+* Support any storage systems (Integartion of Minio for Q1 as an example, Ceph and HDFS in Q2 and beyond)
+* Ability to support any programming language implementations of UDFs
+
 
 # Major Components of Caerus UDF Support
 
