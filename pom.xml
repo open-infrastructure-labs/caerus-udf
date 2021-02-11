@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.openinfralabs.caerus</groupId>
+    <artifactId>udf</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>maven-modules</name>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>eventListenerService</module>
+        <module>ndpService</module>
+        <module>s3client</module>
+        <module>udfService</module>
+        <module>examples/java/thumbnail</module>
+        <module>faas/java-openfaas-client-wrapper/openfaas-client-java</module>
+        <module>registry</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <!-- Default configuration for all reports -->
+                    <noqualifier>all</noqualifier>
+                    <destDir>javadoc</destDir>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Specific configuration for the aggregate report -->
+                            <reportOutputDirectory>${user.dir}/documents</reportOutputDirectory>
+                            <destDir>javadoc</destDir>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

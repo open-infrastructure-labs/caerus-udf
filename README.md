@@ -47,38 +47,133 @@ The software components of Caerus UDF support are listed as follows:
  
 
 # Getting Started
+
+## Serverless option (Q1 item):
 1. Start Redis docker cluster:
 ```
 > cd bitnami-docker-redis/
 > docker-compose -f docker-compose-replicaset.yml up -d
-``` 
-2. Build UDF Registry Service project:
 ```
-> cd registry
-> mvn clean package
+2. Build all projects and generate API documents (Javadoc):
 ```
-3. Run UDF Registry Service:
+> root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf#./build.sh
+> .......
+------------------------------------------------------------------------
+
+Done building Caerus UDF related projects and generating API documentations
+
+**To check all API documents, use web browser to point to: file:///{CAERUS_HOME}/ndp/udf/target/site/apidocs/javadoc/index.html**
+
+root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf#
+
 ```
-> java -jar target/Udf-Registry-0.0.1-SNAPSHOT.jar
-``` 
-4. Build UDF Service project:
+Note: if there is openfaas client compiling/linking error, run following command then rerun build.sh (this will be addressed later for improvement):
 ```
-> cd service
-> mvn clean package
+mvn org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file -Dfile=faas/java-openfaas-client-wrapper/openfaas-client-java/target/openfaas-client-0.0.1.jar
 ```
-5. Run UDF Service:
+3. Run UDF Registry Service (Can be dockerized later):
 ```
-> java -jar target/UdfService-0.0.1-SNAPSHOT.jar
+> java -jar registry/target/udfRegistryService-0.0.1-SNAPSHOT.jar
 ```
-6. Build UDF example (java for now, other language in the future) project:
+4. Run UDF Service (Can be dockerized later):
 ```
-> cd examples/java/thumbnail
-> mvn clean package
+> java -jar udfService/target/udfService-0.0.1-SNAPSHOT.jar
 ```
-7. Install docker registry: this is needed by UDF docker generation (local for now, can be external docker registry later):
+5. Install docker registry: this is needed by UDF docker generation (local for now, can be external docker registry later):
 https://www.digitalocean.com/community/tutorials/how-to-set-up-a-private-docker-registry-on-ubuntu-18-04
 
-8. Build and run UDF example docker using GOOGLE JIB (https://cloud.google.com/blog/products/gcp/introducing-jib-build-java-docker-images-better):
+6. (steps 6-7 are related to storage setup, current example is using Minio, but could change to other storage systems if needed)
+Start up a minio server:
+```
+root@ubuntu1804:/home/ubuntu/minio/minio# ./minio server /data
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ You are running an older version of MinIO released 1 month ago ┃
+┃ Update: Run `mc admin update`                                  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Endpoint:  http://192.168.6.129:9000  http://172.17.0.1:9000  http://172.18.0.1:9000  http://172.19.0.1:9000  http://172.20.0.1:9000  http://127.0.0.1:9000
+AccessKey: minioadmin
+SecretKey: minioadmin
+SQS ARNs:  arn:minio:sqs::1:redis
+....
+```
+7. Follow the below link: https://docs.min.io/docs/minio-bucket-notification-guide.html, run commands:
+```
+> mc admin config set minio/ notify_redis:1 address="172.18.0.2:6379" format="namespace" key="bucketevents" password="my_password" queue_dir="/home/ubuntu/redisEvents" queue_limit="10000
+> mc admin config get minio/ notify_redis
+> mc mb minio/imagesbucket
+> mc event add minio/imagesbucket arn:minio:sqs::1:redis --suffix .jpg
+> mc event list minio/imagesbucket
+  arn:minio:sqs::1:redis s3:ObjectCreated:*,s3:ObjectRemoved:* Filter: suffix=”.jpg”
+```
+8. Set up redis notification by following this: https://redis.io/topics/notifications (note this step can be saved if we don't want to change config during runtime, we can just set in the redis docker config file.)
+```
+root@ubuntu1804:/home/ubuntu# redis-cli -h 172.18.0.2 -a my_password
+Warning: Using a password with '-a' or '-u' option on the command line interface may not be safe.
+172.18.0.2:6379> config set "notify-keysapce-events" "EKsglh"
+(error) ERR Unsupported CONFIG parameter: notify-keysapce-events
+172.18.0.2:6379> config set "notify-keyspace-events" "EKsglh"
+OK
+172.18.0.2:6379> config get "notify-keyspace-events"
+1) "notify-keyspace-events"
+2) "glshKE"
+172.18.0.2:6379>
+```
+9. Set up serverless function framework: see details in https://github.com/futurewei-cloud/caerus/tree/master/ndp/udf/faas
+10. Copy an image file from local to storage (minio in this case)
+```
+mc cp /home/ubuntu/images/new/sample.jpg minio/imagesbucket/
+/home/ubuntu/images/new/sample.jpg:  2.44 MiB / 2.44 MiB ▓▓▓▓┃ 76.35 MiB/s 0sroot@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail#
+```
+
+11. Check storage, the thumbnail file will be created in a bucket called thumbnailsbucket
+```
+root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail# mc ls minio/thumbnailsbucket
+[2020-11-10 13:53:53 EST]  6.2KiB sample_thumbnail.png
+root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail#
+```
+12. Can also view web portal of storage using a web browser
+```
+http://localhost:9000/minio/thumbnailsbucket/
+```
+13. Run Caerus HTTP Service (ndpService) project:
+```
+> java -jar ndpService/target/clientService-0.0.1-SNAPSHOT.jar
+```
+14. Explicitly call a UDF while upload/download/delete object, use Postman or curl command.
+In following example, upon uploading an image file "sample.jpg" to storage, invoke a UDF "thumbnail" to create a thumbnail image
+with input parameters of width=400 and height=600, the thumbnail image is then upload to storage (default location bucket "thumbnailsbucket"):
+```
+curl --location --request POST 'localhost:8000/upload' \
+--form 'bucket=b100' \
+--form 'uploadFile=@/home/ubuntu/images/new/sample.jpg' \
+--form 'metadata={   "name": "thumbnail",
+    "inputParameters": ["400", "600"]
+}'
+```
+15. Check storage to see the metadata tag info:
+```
+root@ubuntu1804:/home/ubuntu# mc stat minio/b100/sample0.jpg
+Name      : sample0.jpg
+Date      : 2020-11-22 11:57:44 EST
+Size      : 2.4 MiB
+ETag      : d68938beae85b03344ec3b2fc56e2ea9
+Type      : file
+Metadata  :
+  Content-Type              : application/octet-stream
+  X-Amz-Meta-Inputparameters: 400,600
+  X-Amz-Meta-Udfname        : thumbnail
+
+root@ubuntu1804:/home/ubuntu#
+```
+
+## Standalone option (Q3 item)
+
+
+1. Run step 1-8 in above (serverless option)
+
+2. Build and run UDF example docker using GOOGLE JIB (https://cloud.google.com/blog/products/gcp/introducing-jib-build-java-docker-images-better):
 ```
 > mvn jib:dockerBuild
 > [INFO] Scanning for projects...
@@ -109,92 +204,4 @@ https://www.digitalocean.com/community/tutorials/how-to-set-up-a-private-docker-
   root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail# 
 > docker run -d --network host  localhost:5000/thumbnail:0.0.1-SNAPSHOT
 ```
-9. (steps 9-10 are related to storage setup, current example is using Minio, but could change to other storage systems if needed)
-Start up a minio server:
-```
-root@ubuntu1804:/home/ubuntu/minio/minio# ./minio server /data
-
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ You are running an older version of MinIO released 1 month ago ┃
-┃ Update: Run `mc admin update`                                  ┃
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-Endpoint:  http://192.168.6.129:9000  http://172.17.0.1:9000  http://172.18.0.1:9000  http://172.19.0.1:9000  http://172.20.0.1:9000  http://127.0.0.1:9000          
-AccessKey: minioadmin 
-SecretKey: minioadmin 
-SQS ARNs:  arn:minio:sqs::1:redis
-....
-```
-10. Follow the below link: https://docs.min.io/docs/minio-bucket-notification-guide.html, run commands:
-```
-> mc admin config set minio/ notify_redis:1 address="172.18.0.2:6379" format="namespace" key="bucketevents" password="my_password" queue_dir="/home/ubuntu/redisEvents" queue_limit="10000
-> mc admin config get minio/ notify_redis
-> mc mb minio/imagesbucket
-> mc event add minio/imagesbucket arn:minio:sqs::1:redis --suffix .jpg
-> mc event list minio/imagesbucket
-  arn:minio:sqs::1:redis s3:ObjectCreated:*,s3:ObjectRemoved:* Filter: suffix=”.jpg”
-``` 
-11. Set up redis notification by following this: https://redis.io/topics/notifications (note this step can be saved if we don't want to change config during runtime, we can just set in the redis docker config file.)
-```
-root@ubuntu1804:/home/ubuntu# redis-cli -h 172.18.0.2 -a my_password
-Warning: Using a password with '-a' or '-u' option on the command line interface may not be safe.
-172.18.0.2:6379> config set "notify-keysapce-events" "EKsglh" 
-(error) ERR Unsupported CONFIG parameter: notify-keysapce-events
-172.18.0.2:6379> config set "notify-keyspace-events" "EKsglh" 
-OK
-172.18.0.2:6379> config get "notify-keyspace-events"  
-1) "notify-keyspace-events"
-2) "glshKE"
-172.18.0.2:6379> 
-``` 
-12. Copy an image file from local to storage (minio in this case) 
-```
-mc cp /home/ubuntu/images/new/sample.jpg minio/imagesbucket/
-/home/ubuntu/images/new/sample.jpg:  2.44 MiB / 2.44 MiB ▓▓▓▓┃ 76.35 MiB/s 0sroot@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail#  
-``` 
-
-13. Check storage, the thumbnail file will be created in a bucket called thumbnailsbucket 
-```
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail# mc ls minio/thumbnailsbucket
-[2020-11-10 13:53:53 EST]  6.2KiB sample_thumbnail.png
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail# 
-``` 
-14. Can also view web portal of storage using a web browser 
-```
-http://localhost:9000/minio/thumbnailsbucket/
-``` 
-15. Build Caerus HTTP Service (clientService) project:
-```
-> cd clientService
-> mvn clean package
-```
-16. Run Caerus HTTP Service (clientService) project:
-```
-> java -jar target/clientService-0.0.1-SNAPSHOT.jar
-``` 
-17. Explicitly call a UDF while upload/download/delete object, use Postman or curl command. 
-In following example, upon uploading an image file "sample.jpg" to storage, invoke a UDF "thumbnail" to create a thumbnail image 
-with input parameters of width=400 and height=600, the thumbnail image is then upload to storage (default location bucket "thumbnailsbucket"):  
-```
-curl --location --request POST 'localhost:8000/upload' \
---form 'bucket=b100' \
---form 'uploadFile=@/home/ubuntu/images/new/sample.jpg' \
---form 'metadata={   "name": "thumbnail",
-    "inputParameters": ["400", "600"]
-}'
-```
-18. Check storage to see the metadata tag info:
-```
-root@ubuntu1804:/home/ubuntu# mc stat minio/b100/sample0.jpg
-Name      : sample0.jpg
-Date      : 2020-11-22 11:57:44 EST 
-Size      : 2.4 MiB 
-ETag      : d68938beae85b03344ec3b2fc56e2ea9 
-Type      : file 
-Metadata  :
-  Content-Type              : application/octet-stream 
-  X-Amz-Meta-Inputparameters: 400,600 
-  X-Amz-Meta-Udfname        : thumbnail 
-
-root@ubuntu1804:/home/ubuntu# 
-```
+3. run above step 10-15 
