@@ -12,7 +12,7 @@ copy -sb testbucket -sk sample3.jpg -tb -images -tk sample3.copied.jpg
  */
 
 @CommandLine.Command(
-        name = "copy", description = "Creates a copy of an object that is already stored in S3.."
+        name = "copy", description = "Creates a copy of an object that is already stored in S3."
 )
 @Component
 public class CopyCommand implements Runnable {

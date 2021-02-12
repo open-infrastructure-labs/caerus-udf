@@ -21,7 +21,7 @@ get -b testbucket -k sample0.jpg
  */
 
 @CommandLine.Command(
-        name = "get", description = "Retrieve object from S3.."
+        name = "get", description = "Retrieve object from S3."
 )
 @Component
 public class GetCommand implements Runnable{

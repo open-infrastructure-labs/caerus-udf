@@ -26,7 +26,7 @@ list -b testbucket
  */
 
 @CommandLine.Command(
-        name = "list", description = "list objects within an S3 bucket."
+        name = "list", description = "list objects within a S3 bucket."
 )
 
 @Component

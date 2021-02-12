@@ -16,7 +16,7 @@ delete -b testbucket -k sample3.jpg
  */
 
 @CommandLine.Command(
-        name = "delete", description = "Remove an object/file from an S3 bucket."
+        name = "delete", description = "Remove an object/file from anS3 bucket."
 )
 
 @Component

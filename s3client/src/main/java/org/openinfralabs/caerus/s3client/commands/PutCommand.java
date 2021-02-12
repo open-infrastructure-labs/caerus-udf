@@ -29,7 +29,7 @@ put -b testbucket -f "/home/ubuntu/images/new/sample3.jpg" -k sample3.jpg -u cae
  */
 
 @Command(
-        name = "put", description = "Upload a object/file to an S3 bucket while provide option to invoke UDF on the object/file."
+        name = "put", description = "Upload an object/file to a S3 bucket while provide option to invoke UDF on the object/file."
 )
 
 @Component
