@@ -2,7 +2,7 @@
 Caerus UDF supports FaaS build, deploy, and envocation. It currently uses Openfaas Serverless framework:
 https://www.openfaas.com/
 
-# Getting Started - Setup Openfaas Framework
+# Getting Started - Setup Openfaas Framework (Using Public Docker Hub As Function Repository)
 Note: Fowllowing steps are to setup kubenetes cluster of openfaas, where step 1-7 are pre-requirements, and step 8-12 are steps for the framework deployment  
 1. Install make :
 ```
@@ -236,4 +236,140 @@ b. several good 'custom' function template examples:
 
 > echo Hi | faas invoke caerus-faas-scala-function
 =>>>>>> Or use openfaas GUI to set input params and invoke
+```
+
+
+# Getting Started - Setup Openfaas Framework (Using Private Docker Registry As Function Repository)
+Note: Since we are developing serverless UDF on storage side, many IT organization will probably prefer to use their own private docker registry servers as serverless function repositories for security reasons. 
+There are mnany ways to set private docker registry, then let OpenFaas to communicate with the docker registry, it could via k8s, docker swam etc. here we provide a way to set up a docker registry with KinD: https://kind.sigs.k8s.io/
+The primary site we followed is here with some modifications (see details below): https://docs.openfaas.com/tutorials/local-kind-registry/
+
+Step 1 - Step 7 are same as above in Getting Started (Using Public Docker Hub)
+8. Start private docker registry and registry ui docker containers, start kind cluster, set up network connection between kind cluster and docker registry containers, and add annotations for all kind nodes by calling this Caerus script modified from openfaas site, https://docs.openfaas.com/tutorials/local-kind-registry/ :
+``` 
+cd /home/ubuntu/caerus/caerus/ndp/udf/faas
+chmod +x kind-with-registry.sh
+./kind-with-registry.sh
+```
+Make sure the kubectl context is set to the newly created cluster:
+```
+$ kubectl config current-context
+```
+If the result is not kind-kind then execute:
+```
+$ kubectl config use kind-kind
+```
+Make sure the cluster is running:
+```
+$ kubectl cluster-info
+```
+Make sure Docker registry is running.
+```
+$ docker logs -f kind-registry
+```
+9. Install arcade: https://github.com/alexellis/arkade
+```
+> curl -sLS https://dl.get-arkade.dev | sudo sh
+> arkade –help
+```
+10. Deploy OpenFaas
+```
+$ arkade install openfaas
+$ root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/faas# kubectl -n openfaas get deployments -l "release=openfaas, app=openfaas"
+NAME                READY   UP-TO-DATE   AVAILABLE   AGE
+alertmanager        1/1     1            1           62m
+basic-auth-plugin   1/1     1            1           62m
+gateway             1/1     1            1           62m
+nats                1/1     1            1           62m
+prometheus          1/1     1            1           62m
+queue-worker        1/1     1            1           62m
+root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/faas# 
+```
+11. Get cli and login using faas-cli:
+```
+$ arkade get faas-cli
+> PASSWORD=$(kubectl get secret -n openfaas basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 --decode; echo)
+>  echo -n $PASSWORD | faas-cli login --username admin --password-stdin
+```
+12. Modify image item to in function yaml file (using our thumbnail serverless function as an example, in step 14, it will describe the entire process of creating a test function )
+```
+cd /home/ubuntu/caerus/caerus/ndp/udf/examples/thumbnail_serverless
+root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/thumbnail_serverless# faas-cli up -f caerus-faas-spring-thumbnail-private-registry.yml
+```
+13. Verify that serverless function is ready:
+```
+check OpenFaas GUI by supplying username ("admin") and password (PASSWORD=$(kubectl get secret -n openfaas basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 --decode; echo)): 
+http://127.0.0.1:8080/ui/
+```
+```
+check private docker registry GUI deployed in step 8 by supplying username ("admin") and password ("mypassword"): 
+http://localhost:8086/
+```
+14. Create a Function
+    
+We will take an example of a simple function; a dictionary that returns the meaning of word you query. We will be using the PyDictionary module for this setup.
+
+Pull python language template from store:
+```
+$ faas-cli template store pull python3-flask
+```
+We will be using the python3-flask-debian template.
+
+Setup your OPENFAAS_PREFIX variable to configure the address of your registry:
+
+```
+export OPENFAAS_PREFIX=localhost:5000
+```
+Note: Docker for Mac users may need to change "localhost" to the IP address of their LAN or WiFi adapter as shown on ifconfig such as 192.168.0.14
+
+Create a new function using the template:
+```
+$ export FN=pydict
+$ faas-cli new $FN --lang python3-flask-debian
+```
+This will create a directory for your function and a YAML config file with the function name you provided:
+```
+pydict/
+pydict.yml
+```
+Add dependency to the pydict/requirements.txt file:
+```
+PyDictionary
+```
+Update handler.py with the following code.
+```
+from PyDictionary import PyDictionary
+
+dictionary = PyDictionary()
+
+def handle(word):     
+return dictionary.meaning(word)
+Our minimal function is complete.
+```
+Stack file
+You will see that the OpenFaaS stack YAML file pydict.yml has localhost:5000 in its image destination.
+```
+
+version: 1.0
+provider:
+name: openfaas
+gateway: http://127.0.0.1:8080
+functions:
+pydict:
+lang: python3-flask-debian
+handler: ./pydict
+image: localhost:5000/pydict:latest
+```
+Build Push Deploy
+With our setup ready; we can now build our image, push it to the registry, and deploy it to Kubernetes. And using faas-cli it is possible with a single command!
+```
+faas-cli up -f pydict.yml
+```
+Test the function¶
+We can invoke our function from CLI using faas-cli or curl.
+
+```
+$ echo "advocate" | faas-cli invoke pydict
+
+{"Noun":["a person who pleads for a cause or propounds an idea","a lawyer who pleads cases in court"],"Verb":["push for something","speak, plead, or argue in favor of"]}
 ```
