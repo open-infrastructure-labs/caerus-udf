@@ -241,10 +241,13 @@ b. several good 'custom' function template examples:
 
 # Getting Started - Setup Openfaas Framework (Using Private Docker Registry As Function Repository)
 Note: Since we are developing serverless UDF on storage side, many IT organization will probably prefer to use their own private docker registry servers as serverless function repositories for security reasons. 
-There are mnany ways to set private docker registry, then let OpenFaas to communicate with the docker registry, it could via k8s, docker swam etc. here we provide a way to set up a docker registry with KinD: https://kind.sigs.k8s.io/
-The primary site we followed is here with some modifications (see details below): https://docs.openfaas.com/tutorials/local-kind-registry/
+There are mnany ways to set private docker registry, then let OpenFaas to communicate with the docker registry, it could via k8s, docker swam etc. here we provide a way to set up a docker registry with KinD: 
+  * https://kind.sigs.k8s.io/
+The primary site we followed is here with some modifications (see details below): 
+  * https://docs.openfaas.com/tutorials/local-kind-registry/
 
 Step 1 - Step 7 are same as above in Getting Started (Using Public Docker Hub)
+
 8. Start private docker registry and registry ui docker containers, start kind cluster, set up network connection between kind cluster and docker registry containers, and add annotations for all kind nodes by calling this Caerus script modified from openfaas site, https://docs.openfaas.com/tutorials/local-kind-registry/ :
 ``` 
 cd /home/ubuntu/caerus/caerus/ndp/udf/faas
