@@ -7,7 +7,7 @@ reg_port='5000'
 running="$(docker inspect -f '{{.State.Running}}' "${reg_name}" 2>/dev/null || true)"
 if [ "${running}" != 'true' ]; then
   docker run \
-    -d --restart=always -p "${reg_port}:5000" --name "${reg_name}" \
+    -d --rm --restart=always -e REGISTRY_STORAGE_DELETE_ENABLED=true -p "${reg_port}:5000" --name "${reg_name}" \
     registry:2.7
   docker run -d --rm --network host\
    -p 8086:80 \
