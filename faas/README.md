@@ -240,14 +240,15 @@ b. several good 'custom' function template examples:
 
 
 # Getting Started - Setup Openfaas Framework (Using Private Docker Registry As Function Repository)
-Note: Since we are developing serverless UDF on storage side, many IT organization will probably prefer to use their own private docker registry servers as serverless function repositories for security reasons. 
-There are mnany ways to set private docker registry, then let OpenFaas to communicate with the docker registry, it could via k8s, docker swam etc. here we provide a way to set up a docker registry with KinD, the primary sites we followed are here with some modifications (see details below):  
+Note: Since we are developing serverless UDF on storage side, many IT organization will probably prefer to use their own private docker registry servers as serverless function repositories for security reasons.
+
+There are many ways to set private docker registry, it could via k8s, docker swam etc. here we provide a way to set up a docker registry with KinD, the primary sites we followed are here with some modifications (see details below):  
   * https://kind.sigs.k8s.io/
   * https://docs.openfaas.com/tutorials/local-kind-registry/
 
 Step 1 - Step 7 are same as above in Getting Started (Using Public Docker Hub)
 
-8. Start private docker registry and registry ui docker containers, start kind cluster, set up network connection between kind cluster and docker registry containers, and add annotations for all kind nodes by calling this Caerus script"kind-with-registry.sh" :
+8. Start private docker registry and registry ui docker containers, start kind cluster, set up network connection between kind cluster and docker registry containers, and add annotations for all kind nodes by calling this Caerus script, "kind-with-registry.sh" :
 ``` 
 cd /home/ubuntu/caerus/caerus/ndp/udf/faas
 chmod +x kind-with-registry.sh
@@ -293,7 +294,7 @@ $ arkade get faas-cli
 > PASSWORD=$(kubectl get secret -n openfaas basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 --decode; echo)
 >  echo -n $PASSWORD | faas-cli login --username admin --password-stdin
 ```
-12. Modify image item to in function yaml file (using our thumbnail serverless function as an example, in step 14, it will describe the entire process of creating a test function )
+12. Modify image item to in function yaml file (using our thumbnail serverless function as an example, in step 14, it will describe the entire process of creating a test function)
 ```
 cd /home/ubuntu/caerus/caerus/ndp/udf/examples/thumbnail_serverless
 root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/thumbnail_serverless# faas-cli up -f caerus-faas-spring-thumbnail-private-registry.yml
