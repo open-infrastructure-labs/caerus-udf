@@ -1,4 +1,8 @@
 # Caerus UDF Event Notification Service
+
+Caerus Event Listener Service is a storage-side REST service that listens to registered streaming sources (Redis for now, can add other sources like Kafka, RMQ etc. if needed). Upon event, it reacts and automatically invokes related UDFs upon certain storage actions.
+
+
 In modern storage systems and cloud storage backend, many of them started to implement a feature called “bucket notification”, vendors and open sources like Amazon S3, GCP Storage (Google Cloud Storage), IBM Cloud Object Storage, Ceph, MinIO etc. all have this support now. This notification feature enables you to receive notifications when certain events (such as PUT, GET, COPY, DELTE etc.) happen in your bucket. Currently people use this feature majorly for alerting etc. lightweight use cases, with Caerus storage-side UDF pushdown, now we can support use cases even they are very data intensive in an fully automatic fashion.
 
 
