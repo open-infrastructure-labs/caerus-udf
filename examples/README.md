@@ -1,17 +1,10 @@
-To test this function, do following steps:
-1. build the project: 
-```
-mvn clean package
-```
+# Caerus UDF Examples (Serverless and Standalone Options) 
 
-2. Start the app via IDE for debuuging or via command line:
-```
-java -jar target/thumbnail-0.0.1-SNAPSHOT.jar
-```
-3. Use post man or curl command to send GET request with following parameters:
-```
-localhost:8090/imagesbucket/sample.jpg?inputParameters=200&inputParameters=400
-```
-```
-curl --location --request GET 'localhost:8090/imagesbucket/sample.jpg?inputParameters=200&inputParameters=400'
-```
+This section has following examples:
+
+## 1. A serverless UDF example
+The example compiles, publishes and deploys UDF as an Openfaas serverless function that combines user defined function and common boilerplate code. It will read/write to storage directly via storage client.
+
+## 2. A standalone UDF example
+The example compiles, publishes and deploys UDF docker that combines user defined function and common boilerplate code. It will read/write to storage directly via storage client.
+
