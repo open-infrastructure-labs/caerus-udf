@@ -16,10 +16,11 @@ Upon registered event happening, the storage system automatically sends triggere
 
 The steps below show how to use this bucket notification:
 
-## Step 1: Start notification target, such as Redis
+## Step 1: Start notification target, such as Redis and Caerus Event Notification Service
 ```
 > cd $CAERUS_HOME/bitnami-docker-redis/
 > docker-compose -f docker-compose-replicaset.yml up -d
+> java -jar target/EventListenerService-0.0.1-SNAPSHOT.jar
 ```
 ## Step 2: Add nortification target to storage system
 Follow the below link: https://docs.min.io/docs/minio-bucket-notification-guide.html, run commands:
