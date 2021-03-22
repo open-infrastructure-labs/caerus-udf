@@ -8,7 +8,7 @@ In modern storage systems and cloud storage backend, many of them started to imp
 
 Related to “bucket notification”, there are two characteristics:
   1.	It is currently only supported in object storage systems/cloud object storage, we haven’t seen it in file system (like HDFS) or block systems, but this doesn’t say that we can’t add such support to file/block storage, in matter of fact, people do ask such feature and have some experimental implementation (for example, people hook up HDFS with Apache Nifi and event target like Redis/Kafka to support HDFS version of this feature). We can integrate this feature into HDFS as needed.
-  2.	When people use bucket notification feature, they normally take advantage the rich feature of “bucket” configurations (normally it is called bucket policy), see examples of Amazon S3 bucket policy) to create specialized bucket. For example, a bucket normally only contains certain type of object types (images file only), or a bucket only belongs to certain group/user/organization etc. 
+  2.	When people use bucket notification feature, they normally take advantage the rich feature of “bucket” configurations (normally it is called bucket policy, see examples of Amazon S3 bucket policy) to create specialized bucket. For example, a bucket normally only contains certain type of object types (images file only), or a bucket only belongs to certain group/user/organization etc. 
       
 
 Amazon S3 bucket policy examples:
