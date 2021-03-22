@@ -18,12 +18,14 @@ Amazon S3 bucket policy examples:
   
 Upon registered event happening, the storage system automatically sends triggered events to the configured notification targets. Storage system can support notification targets like AMQP, Redis, Kafka, ElasticSearch, NATS, Webhooks, NSQ, MQTT, MySQL and PostgreSQL. In Caerus project, we use MinIO Bucket Notifications and Redis as notification target as an example for our first storage system integration example, more storage system integration and different notification targets can be added as needed.
 
+# Getting Started
 The steps below show how to use this bucket notification:
 
 ## Step 1: Start notification target, such as Redis and Caerus Event Notification Service
 ```
 > cd $CAERUS_HOME/bitnami-docker-redis/
 > docker-compose -f docker-compose-replicaset.yml up -d
+> mvn clean package
 > java -jar target/EventListenerService-0.0.1-SNAPSHOT.jar
 ```
 ## Step 2: Add nortification target to storage system
