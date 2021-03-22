@@ -1,43 +1,68 @@
-# Caerus UDF Registry Server
-Caerus UDF Registry Server is a HTTP server that serves requests to store/create, retrieve, modify and delete UDF configurations and its app code (e.g. jar file). It uses Redis (mount on any storage) as backend.  
+# Caerus UDF Event Notification Service
+In modern storage systems and cloud storage backend, many of them started to implement a feature called “bucket notification”, vendors and open sources like Amazon S3, GCP Storage (Google Cloud Storage), IBM Cloud Object Storage, Ceph, MinIO etc. all have this support now. This notification feature enables you to receive notifications when certain events (such as PUT, GET, COPY, DELTE etc.) happen in your bucket. Currently people use this feature majorly for alerting etc. lightweight use cases, with Caerus storage-side UDF pushdown, now we can support use cases even they are very data intensive in an fully automatic fashion.
 
-There are three portions in this project:
-* Rest API portion: defines APIs for common actions such as POST/GET/Delete/PUT etc., it uses Swagger editor etc. to define, test and generate code (see notes) 
-* Redis configuration: contains Redis docker configurations for Redis cluster setup
-* UDF Registry Server: serves micro-service type requests, based on Spring Boot framework, and code for Redis operations  
 
-Notes: For Swagger code generation, currently it has limitations on Spring Boot server side, for example, it restricts to Java 7 and older version of Spring Boot, significant changes and tests need to be added before we can use it. Set this as TODO list for future development. We are currently using tools like SpringInitialzr (https://start.spring.io/) to generate server code skeleton and maven pom file.
+Related to “bucket notification”, there are two characteristics:
+  1.	It is currently only supported in object storage systems/cloud object storage, we haven’t seen it in file system (like HDFS) or block systems, but this doesn’t say that we can’t add such support to file/block storage, in matter of fact, people do ask such feature and have some experimental implementation (for example, people hook up HDFS with Apache Nifi and event target like Redis/Kafka to support HDFS version of this feature). We can integrate this feature into HDFS as needed.
+  2.	When people use bucket notification feature, they normally take advantage the rich feature of “bucket” configurations (normally it is called bucket policy), see examples of Amazon S3 bucket policy) to create specialized bucket. For example, a bucket normally only contains certain type of object types (images file only), or a bucket only belongs to certain group/user/organization etc. 
+      
 
-# Getting Started
-1. Start Redis docker cluster:
+Amazon S3 bucket policy examples:
+  1.	https://aws.amazon.com/premiumsupport/knowledge-center/s3-allow-certain-file-types/
+  2.	https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html
+  
+  
+Upon registered event happening, the storage system automatically sends triggered events to the configured notification targets. Storage system can support notification targets like AMQP, Redis, Kafka, ElasticSearch, NATS, Webhooks, NSQ, MQTT, MySQL and PostgreSQL. In Caerus project, we use MinIO Bucket Notifications and Redis as notification target as an example for our first storage system integration example, more storage system integration and different notification targets can be added as needed.
+
+The steps below show how to use this bucket notification:
+
+## Step 1: Start notification target, such as Redis
 ```
-> cd bitnami-docker-redis/
+> cd $CAERUS_HOME/bitnami-docker-redis/
 > docker-compose -f docker-compose-replicaset.yml up -d
-``` 
-2. Build server project:
 ```
-> mvn clean package
+## Step 2: Add nortification target to storage system
+Follow the below link: https://docs.min.io/docs/minio-bucket-notification-guide.html, run commands:
 ```
-3. Run server project:
+> mc admin config set minio/ notify_redis:1 address="172.18.0.2:6379" format="namespace" key="bucketevents" password="my_password" queue_dir="/home/ubuntu/redisEvents" queue_limit="10000
+> mc admin config get minio/ notify_redis
+> mc mb minio/imagesbucket
+> mc event add minio/imagesbucket arn:minio:sqs::1:redis --suffix .jpg
+> mc event list minio/imagesbucket
+  arn:minio:sqs::1:redis s3:ObjectCreated:*,s3:ObjectRemoved:* Filter: suffix=”.jpg”
 ```
-> java -jar target/Udf-Registry-0.0.1-SNAPSHOT.jar
-``` 
-4. Run tools like postman or curl to submit request:
+## Step 3: Enable bucket notification to storage system
+Set up redis notification by following this: https://redis.io/topics/notifications (note this step can be saved if we don't want to change config during runtime, we can just set in the redis docker config file.)
 ```
-> curl --location --request GET 'http://localhost:8080/udf/'
-> [{"id":"f5b53821-1fe4-46da-8a94-d2be18411bfe","name":"udf1","pkg":0,"language":"Java","interfaceVersion":1.0,"languageVersion":1.8,"main":"main_class_name","fileName":"Udf1.jar"}]
-``` 
-5. confirm with Redis client tools like RDM GUI (https://snapcraft.io/redis-desktop-manager) or Redis cli command to see if the records returned are correct
+root@ubuntu1804:/home/ubuntu# redis-cli -h 172.18.0.2 -a my_password
+Warning: Using a password with '-a' or '-u' option on the command line interface may not be safe.
+172.18.0.2:6379> config set "notify-keysapce-events" "EKsglh"
+(error) ERR Unsupported CONFIG parameter: notify-keysapce-events
+172.18.0.2:6379> config set "notify-keyspace-events" "EKsglh"
+OK
+172.18.0.2:6379> config get "notify-keyspace-events"
+1) "notify-keyspace-events"
+2) "glshKE"
+172.18.0.2:6379>
+```
+## Step 4: Test on notification target
+Start the redis-cli Redis client program to inspect the contents in Redis. Run the monitor Redis command. This prints each operation performed on Redis as it occurs.
+```
+redis-cli -a yoursecret
+127.0.0.1:6379> monitor
+OK
+```
+Set up serverless function framework: see details in https://github.com/futurewei-cloud/caerus/tree/master/ndp/udf/faas
+Copy an image file from local to storage (MinIO in this case)
+```
+mc cp /home/ubuntu/images/new/sample.jpg minio/imagesbucket/
+/home/ubuntu/images/new/sample.jpg:  2.44 MiB / 2.44 MiB ▓▓▓▓┃ 76.35 MiB/s 0sroot@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail#
+```
+Check storage, the thumbnail file will be created in a bucket called thumbnailsbucket
+```
+root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail# mc ls minio/thumbnailsbucket
+[2020-11-10 13:53:53 EST]  6.2KiB sample_thumbnail.png
+root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail#
+```
 
-# API Documentation - Via Swagger
-* To see and try out the APIs provided by this service, simply type in following in a browser (localhost can be replaced by the IP address of the server):
-``` 
-http://localhost:8080/swagger-ui.html  
-``` 
-* To see the APIs document in a Json format, simply issue a GET request via curl or tools like postman:
-``` 
-curl --location --request GET 'http://localhost:8080/v2/api-docs' 
-``` 
-```
-{"swagger":"2.0","info":{"description":"Rest APIs for managing UDF registry backed by redis","version":"1.0","title":"Caerus UDF Registry APIs","termsOfService":"Free to use","contact":{"name":"Yong Wang","url":"https://openinfralabs.org/","email":"yong.wang@futurewei.com"},"license":{"name":"Apache License 2.0","url":"https://openinfralabs.org/"}},"host":"localhost:8080","basePath":"/","tags":[{"name":"udf-controller","description":"Udf Controller"}],"paths":{"/api/udf":{"get":{"tags":["udf-controller"],"summary":"Fetch all UDfs' configuration information from the registry.","description":"Fetch all Udfs configuration in json format.","operationId":"fetchAllUdfUsingGET","produces":["*/*"],"responses":{"200":.....
-```
+
