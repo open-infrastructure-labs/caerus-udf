@@ -71,13 +71,15 @@ Note: if there is openfaas client compiling/linking error, run following command
 ```
 mvn org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file -Dfile=faas/java-openfaas-client-wrapper/openfaas-client-java/target/openfaas-client-0.0.1.jar
 ```
-3. Run UDF Registry Service (Can be dockerized later):
+3. Run UDF Registry Service (Can be dockerized later, only apply to standalone option):
 ```
 > java -jar registry/target/udfRegistryService-0.0.1-SNAPSHOT.jar
 ```
-4. Run UDF Service (Can be dockerized later):
+4. Run NDP Service, UDF Service, Event Listener Service (Can be dockerized later):
 ```
+> java -jar ndpService/target/ndpService-0.0.1-SNAPSHOT.jar
 > java -jar udfService/target/udfService-0.0.1-SNAPSHOT.jar
+> java -jar eventListenerService/target/EventListenerService-0.0.1-SNAPSHOT.jar
 ```
 5. Install docker registry: this is needed by UDF docker generation (local for now, can be external docker registry later):
 https://www.digitalocean.com/community/tutorials/how-to-set-up-a-private-docker-registry-on-ubuntu-18-04
