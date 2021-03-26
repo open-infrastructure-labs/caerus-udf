@@ -87,4 +87,20 @@ root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/s3client# java -jar target/s3
     Etag:          b012df12a3e771ae9af1f4e0c40f88bc
     Storage Class: STANDARD
 ```
-
+# Troubleshooting
+All Caerus UDF related services have log files created in the backend container:
+```
+root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/deployment# docker exec -it deployment_caerus-ndp-udf-backend_1 bash
+root@ubuntu1804:/home/jars# ls -la /tmp/
+..
+-rw------- 1 root root    0 Mar 26 12:33 eventListenerService-stderr---supervisor-V3xute.log
+-rw------- 1 root root 6181 Mar 26 12:33 eventListenerService-stdout---supervisor-bhsttH.log
+-rw------- 1 root root    0 Mar 26 12:33 ndpService-stderr---supervisor-29rInA.log
+-rw------- 1 root root 2773 Mar 26 12:33 ndpService-stdout---supervisor-BY39L3.log
+-rw------- 1 root root    0 Mar 26 12:33 registryService-stderr---supervisor-abevyV.log
+-rw------- 1 root root 3204 Mar 26 12:33 registryService-stdout---supervisor-oo4GN2.log
+-rw------- 1 root root    0 Mar 26 12:33 udfService-stderr---supervisor-X0lgO4.log
+-rw------- 1 root root 2140 Mar 26 12:33 udfService-stdout---supervisor-tUlIbG.log
+...
+root@ubuntu1804:/home/jars# 
+```
