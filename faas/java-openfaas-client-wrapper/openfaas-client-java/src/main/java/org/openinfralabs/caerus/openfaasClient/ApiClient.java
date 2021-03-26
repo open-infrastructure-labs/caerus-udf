@@ -97,6 +97,12 @@ public class ApiClient {
         authentications = new HashMap<String, Authentication>();
 
         HttpBasicAuth httpBasicAuth = new HttpBasicAuth();
+
+        username = Optional.ofNullable(System.getenv("OPENFAAS_USERNAME")).orElse(username);
+        password = Optional.ofNullable(System.getenv("OPENFAAS_PASSWORD")).orElse(password);
+        basePath = Optional.ofNullable(System.getenv("OPENFAAS_BASEPATH")).orElse(basePath);
+
+
         httpBasicAuth.setUsername(username);
         httpBasicAuth.setPassword(password);
 

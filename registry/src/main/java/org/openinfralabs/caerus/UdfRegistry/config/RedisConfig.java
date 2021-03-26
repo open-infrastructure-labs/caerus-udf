@@ -29,6 +29,14 @@ public class RedisConfig {
 
     private final long TIMEOUT;
 
+    /**
+     * Redis configuration info
+     * @param hostname Reids master host name or IP
+     * @param port     Redis port number
+     * @param database Redis database (for standalone mode)
+     * @param password Redis admin password (can add support to accept as an input
+     * @param timeout  Redis connection timeout value (optional)
+     */
     public RedisConfig(
             @Value("${redis.hostname}") String hostname,
             @Value("${redis.port}") int port,
@@ -44,6 +52,10 @@ public class RedisConfig {
         logger.info("hostname = "+hostname + " port =" + String.valueOf(port));
     }
 
+    /**
+     * Redis connection factory
+     * @return Instance of Redis connection factory
+     */
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
 
@@ -57,6 +69,10 @@ public class RedisConfig {
         return jedisConFactory;
     }
 
+    /**
+     * Redis template
+     * @return key value pair of Redis template
+     */
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
 

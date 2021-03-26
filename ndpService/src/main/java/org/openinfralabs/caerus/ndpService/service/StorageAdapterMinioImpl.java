@@ -33,7 +33,7 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
 
     Logger logger = LoggerFactory.getLogger(StorageAdapterMinioImpl.class);
 
-    final String udfService_uri = "http://localhost:8383/";
+    final String udfService_uri = "http://localhost:8002/";
     final String invocation_event_put = "put";
     final String invocation_event_access = "get";
     final String invocation_event_delete = "delete";

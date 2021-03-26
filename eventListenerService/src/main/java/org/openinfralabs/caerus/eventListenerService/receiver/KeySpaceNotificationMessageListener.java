@@ -43,7 +43,7 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
 
     Logger logger = LoggerFactory.getLogger(KeySpaceNotificationMessageListener.class);
 
-    final String udf_registry_service_uri = "http://localhost:8080/udf";
+    final String udf_registry_service_uri = "http://localhost:8004/udf";
     final String udf_docker_uri = "http://localhost:8090/";
     //final String udf_docker_uri = "http://172.17.0.2:8090/";
     final String invocation_event_put = "put";

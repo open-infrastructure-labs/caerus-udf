@@ -34,7 +34,7 @@ import org.openinfralabs.caerus.openfaasClient.model.FunctionListEntry;
 public class RequestHandler {
     Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
-    final String udf_registry_service_uri = "http://localhost:8080/udf/";
+    final String udf_registry_service_uri = "http://localhost:8004/udf/";
     final String udf_docker_uri = "http://localhost:8090/";
     final String bucketNamePath = "bucketName";
     final String objectKeyPath = "objectKey";

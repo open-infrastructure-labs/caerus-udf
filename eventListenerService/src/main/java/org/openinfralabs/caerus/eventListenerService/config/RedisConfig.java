@@ -1,6 +1,8 @@
 package org.openinfralabs.caerus.eventListenerService.config;
 
 import org.openinfralabs.caerus.eventListenerService.receiver.KeySpaceNotificationMessageListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +32,7 @@ import java.util.concurrent.Executors;
 @Configuration
 @EnableCaching
 public class RedisConfig {
-
+    Logger logger = LoggerFactory.getLogger(RedisConfig.class);
     private final String HOSTNAME;
 
     private final int PORT;
@@ -61,6 +63,9 @@ public class RedisConfig {
         this.DATABASE = database;
         this.PASSWORD = password;
         this.TIMEOUT = timeout;
+        logger.info("hostname=" + hostname);
+        logger.info("password=" + password);
+
     }
 
     KeySpaceNotificationMessageListener keySpaceNotificationMessageListener;

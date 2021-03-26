@@ -1,0 +1,41 @@
+version: '3.6'
+services:
+  caerus-ndp-udf-backend:
+    network_mode: "host"
+    build:
+      context: ../
+      dockerfile: deployment/dockers/backenddocker/Dockerfile
+      args:
+        - GITUSERNAME=ywang529
+        - GITPASSOWRD=cb8fb.Com
+    restart: always
+    environment:
+      - CAERUS_REDIS_HOSTNAME=localhost
+      - OPENFAAS_USERNAME=admin
+      - OPENFAAS_PASSWORD=${OPENFAAS_ADMIN_PASS}
+      - OPENFAAS_BASEPATH=http://127.0.0.1:8080
+      - MINIO_URL=http://localhost:9000
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+      - "8003:8003"
+    depends_on:
+      - caerus-redis-primary
+
+  caerus-redis-primary:
+    network_mode: "host"
+    image: 'docker.io/bitnami/redis:6.0-debian-10'
+    ports:
+      - "6379:6379"
+    restart: always
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_PASSWORD=my_password
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    volumes:
+      - '/data/redis-data:/bitnami/redis/data'
+
+
+
+

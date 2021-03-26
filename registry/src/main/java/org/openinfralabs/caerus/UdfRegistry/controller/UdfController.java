@@ -28,11 +28,17 @@ public class UdfController {
     @Autowired
     private UdfService udfService;
 
+    /**
+     *
+     * @param newUdf
+     * @param file
+     * @return
+     */
     // When send both binary file and json object, we can only use form, not raw data request body, so the newUdf can only be string, not object
     // so send string all the way to udfDaoImpl to change back to NewUdf object from string explicitly
     @PostMapping(value="/udf", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiOperation(value = "Create a new udf and save to the UDF Registry, input form with a json config and a MultipartFile",
-            notes = "Send via an input form with a json config and a MultipartFile. The json config must inclue followings:" +
+            notes = "Send via an input form with a json config and a MultipartFile. The json config must include followings:" +
                     "  private String name;\n" +
                     "  private int pkg; //0 = function; 1 = docker\n" +
                     "  private String language;\n" +
@@ -50,6 +56,7 @@ public class UdfController {
         }
     }
 
+    
     @GetMapping("/udf")
     @ApiOperation(value = "Fetch all UDfs' configuration information from the registry.",
                 notes = "Fetch all Udfs configuration in json format.")
