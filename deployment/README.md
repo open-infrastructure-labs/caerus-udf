@@ -74,7 +74,7 @@ root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/s3client# java -jar target/s3
     Storage Class: STANDARD
 ```
 
-## Step 7: Test this deployment set up: automated event-driven invocation of serverless function
+## Step 8: Test this deployment set up: automated event-driven invocation of serverless function
 Copy an image file from local to storage, then check newly created thumbnail by serverless function:
 ```
 root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/eventListenerService# mc cp /home/ubuntu/images/new/sample.jpg minio/imagesbucket/
