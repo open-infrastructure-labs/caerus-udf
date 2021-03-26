@@ -54,10 +54,13 @@ The software components of Caerus UDF support are listed as follows:
 > cd bitnami-docker-redis/
 > docker-compose -f docker-compose-replicaset.yml up -d
 ```
-2. Build all projects and generate API documents (Javadoc):
+2. Build all projects and generate API documents (Javadoc) and set up environmental variables:
 ```
 > root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf#./build.sh
 > .......
+
+> root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf# source ./set_env.sh 
+
 ------------------------------------------------------------------------
 
 Done building Caerus UDF related projects and generating API documentations
