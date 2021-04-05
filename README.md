@@ -48,43 +48,9 @@ The software components of Caerus UDF support are listed as follows:
 
 # Getting Started
 
-## Serverless option (Q1 item):
+## Serverless Option 
 See detail instructions here: https://github.com/futurewei-cloud/caerus/tree/master/ndp/udf/deployment
 
 ## Standalone option (Q3 item)
+To be described.
 
-
-1. Run step 1-8 in above (serverless option)
-
-2. Build and run UDF example docker using GOOGLE JIB (https://cloud.google.com/blog/products/gcp/introducing-jib-build-java-docker-images-better):
-```
-> mvn jib:dockerBuild
-> [INFO] Scanning for projects...
-  [INFO] 
-  [INFO] -----------------------< com.example:thumbnail >------------------------
-  [INFO] Building thumbnail 0.0.1-SNAPSHOT
-  [INFO] --------------------------------[ jar ]---------------------------------
-  [INFO] 
-  [INFO] --- jib-maven-plugin:2.1.0:dockerBuild (default-cli) @ thumbnail ---
-  [INFO] 
-  [INFO] Containerizing application to Docker daemon as localhost:5000/thumbnail:0.0.1-SNAPSHOT...
-  [WARNING] Base image 'openjdk:8u171-alpine' does not use a specific image digest - build may not be reproducible
-  [INFO] The base image requires auth. Trying again for openjdk:8u171-alpine...
-  [INFO] Using base image with digest: sha256:e10cd2553b2a7247b9bf03543e33c4daed53ee508751930794a4a560b622e20a
-  [INFO] 
-  [INFO] Container entrypoint set to [java, -Xms512m, -Xmx512m, -cp, /app/resources:/app/classes:/app/libs/*, com.example.thumbnail.ThumbnailApplication]
-  [INFO] 
-  [INFO] Built image to Docker daemon as localhost:5000/thumbnail:0.0.1-SNAPSHOT
-  [INFO] Executing tasks:
-  [INFO] [==============================] 100.0% complete
-  [INFO] 
-  [INFO] ------------------------------------------------------------------------
-  [INFO] BUILD SUCCESS
-  [INFO] ------------------------------------------------------------------------
-  [INFO] Total time:  12.590 s
-  [INFO] Finished at: 2020-11-10T16:12:34-05:00
-  [INFO] ------------------------------------------------------------------------
-  root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail# 
-> docker run -d --network host  localhost:5000/thumbnail:0.0.1-SNAPSHOT
-```
-3. run above step 10-15
