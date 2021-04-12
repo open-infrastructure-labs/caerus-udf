@@ -59,6 +59,7 @@ scala> val df_with_schema = spark.read.schema(schema).json("/data/source/people.
 scala> df_with_schema.printSchema()
 scala> df_with_schema.show(false)
 scala> df_with_schema.createOrReplaceTempView("people_with_schema")
+scala> val sql_with_schema = spark.sql("select * from people_with_schema where age > 15")
 scala> sql_with_schema.show()
 scala> sql_with_schema.explain(true)
        == Parsed Logical Plan ==
