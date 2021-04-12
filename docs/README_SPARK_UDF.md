@@ -32,7 +32,7 @@ There are 2 potential performance benefits for replacing function calls with nat
       - Pushdown of operations to Datsources has a huge impact. For example see below for the Oracle SQL generated and pushed when a macro is defined instead of a UDF.
 
 ### How To Start:
-Follow this link, but need some minor tweaks:
+Follow the above link, but need some minor tweaks:
 - The version we used to test are Spark 3.1.1 and Scala 2.12.10
 - The jar file need to be loaded like this (using –jar might cause problem: )
       spark-shell --driver-class-path sql/target/scala-2.12/spark-sql-macros_2.12.10_0.1.0-SNAPSHOT.jar
@@ -96,7 +96,7 @@ There are 2 potential benefits for Transport:
 - Unification: one UDF, multiple compute engine translation
 - Performance: the Spark translation will create native function (without the implementation of codeGen etc.), which will remove the need of serialization/de-serialization between Spark Catalyst and Scala code. Pushdown is not supported.
 ### How To Start:
-Follow this link, but need some minor tweaks:
+Follow the above link, but need some minor tweaks:
 1. The version we used to test are Spark 2.3.0 and Scala 2.11.8. For latest Spark and Scala support, some build changes will be needed.
 2. To build sample functions using
 
