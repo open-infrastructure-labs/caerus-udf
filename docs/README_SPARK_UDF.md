@@ -105,7 +105,7 @@ Transport is a framework for writing performant user-defined functions (UDFs) th
 
 There are 2 potential benefits for Transport:
 - Unification: one UDF, multiple compute engine translation
-- Performance: the Spark translation will create native function (without the implementation of codeGen etc.), which will remove the need of ser
+- Performance: the Spark translation will create native function (without the implementation of codeGen etc.), which will remove the need of serialization/deserialization.
 
 
 There are 2 potential benefits for Transport:
