@@ -11,8 +11,9 @@ There is strong need to improve performance and usability for Spark UDFs (see mo
 
 We made investigations on Spark UDF support, trying to improve performance and usability of the Spark UDF, here are the findings:
 ## 1.	Changing Spark UDF into native Spark expression
-      The details are described here: https://databricks.com/session_eu20/optimizing-apache-spark-udfs
-      Our Caerus implementation example can be found here: https://metis.atlassian.net/browse/CAERUS-225
+The details are described here: https://databricks.com/session_eu20/optimizing-apache-spark-udfs
+
+Our Caerus implementation example can be found here: https://metis.atlassian.net/browse/CAERUS-225
 
 
 The expressions need include implementation of codeGen, isNull etc. to allow Spark UDF to be operated just as native Spark functions.
@@ -20,9 +21,9 @@ The expressions need include implementation of codeGen, isNull etc. to allow Spa
 - The major disadvantage of this approach is the need to recompile the Spark core SQL module, thus results in custom-built Spark
 
 ## 2.	Spark SQL Macros
-      The details are described here: https://github.com/hbutani/spark-sql-macros
+The details are described here: https://github.com/hbutani/spark-sql-macros
       
-      Spark SQL Macros provide a capability to register custom functions into a Spark Session that is similar to custom UDF Registration capability of Spark. The difference being that the SQL Macros registration mechanism attempts to translate the function body to an equivalent Spark catalyst Expression with holes(MarcroArg catalyst expressions). A FunctionBuilder that encapsulates this expression is registered in Spark's FunctionRegistry. Then any function invocation is replaced by the equivalent catalyst Expression with the holes replaced by the calling site arguments.
+Spark SQL Macros provide a capability to register custom functions into a Spark Session that is similar to custom UDF Registration capability of Spark. The difference being that the SQL Macros registration mechanism attempts to translate the function body to an equivalent Spark catalyst Expression with holes(MarcroArg catalyst expressions). A FunctionBuilder that encapsulates this expression is registered in Spark's FunctionRegistry. Then any function invocation is replaced by the equivalent catalyst Expression with the holes replaced by the calling site arguments.
 
 There are 2 potential performance benefits for replacing function calls with native catalyst expressions:
 - Evaluation performance. Since we avoid the SerDe cost at the function boundary.
