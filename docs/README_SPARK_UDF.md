@@ -83,9 +83,9 @@ Filter (isnotnull(age#54) AND (age#54 > 15))
 ```
 
 ## 3.	Transport (UDF)
-      The details are described here: https://github.com/linkedin/transport
+The details are described here: https://github.com/linkedin/transport
       
-      Transport is a framework for writing performant user-defined functions (UDFs) that are portable across a variety of engines including Apache Spark, Apache Hive, and Presto. Transport UDFs are also capable of directly processing data stored in serialization formats such as Apache Avro. With Transport, developers only need to implement their UDF logic once using the Transport API. Transport then takes care of translating the UDF to native UDF version targeted at various engines or formats. Currently, Transport is capable of generating engine-artifacts for Spark, Hive, and Presto, and format-artifacts for Avro. 
+Transport is a framework for writing performant user-defined functions (UDFs) that are portable across a variety of engines including Apache Spark, Apache Hive, and Presto. Transport UDFs are also capable of directly processing data stored in serialization formats such as Apache Avro. With Transport, developers only need to implement their UDF logic once using the Transport API. Transport then takes care of translating the UDF to native UDF version targeted at various engines or formats. Currently, Transport is capable of generating engine-artifacts for Spark, Hive, and Presto, and format-artifacts for Avro. 
 
 There are 2 potential benefits for Transport:
 - Unification: one UDF, multiple compute engine translation
