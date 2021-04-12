@@ -3,38 +3,40 @@
 More and more upper level applications like AI field (via Spark Mllib) are using Spark UDFs, while they are notorious in performance. In Facebook production environment, small amount of the UDFs can take up to 70% of the CPU time of the entire company’s queries.
 
 Spark UDFs currently have these characteristics:
-•	The format is primarily lambda functions that major goal is to operate data row by row. The other complex format like UDAF/UDTF (back ported from Hive), and free form (programming language like Java friendly) are afterthought. This Apache Jira item spells out the need to expand Spark UDF support: https://issues.apache.org/jira/browse/SPARK-23818
-•	 The UDF in its native form cannot be optimized, the optimization here refers to removing the need of unnecessary serialization/de-serialization, null checking, and allow UDFs being pushdown etc.
-•	The UDF performance in general is 2-3 times worse than the native Spark functions
+- The format is primarily lambda functions that major goal is to operate data row by row. The other complex format like UDAF/UDTF (back ported from Hive), and free form (programming language like Java friendly) are afterthought. This Apache Jira item spells out the need to expand Spark UDF support: https://issues.apache.org/jira/browse/SPARK-23818
+- The UDF in its native form cannot be optimized, the optimization here refers to removing the need of unnecessary serialization/de-serialization, null checking, and allow UDFs being pushdown etc.
+- The UDF performance in general is 2-3 times worse than the native Spark functions
 
 There is strong need to improve performance and usability for Spark UDFs (see more details in this Apache Jira item: https://issues.apache.org/jira/browse/SPARK-27658 ).
 
 We made investigations on Spark UDF support, trying to improve performance and usability of the Spark UDF, here are the findings:
-##1.	Changing Spark UDF into native Spark expression
+## 1.	Changing Spark UDF into native Spark expression
       The details are described here: https://databricks.com/session_eu20/optimizing-apache-spark-udfs
       Our Caerus implementation example can be found here: https://metis.atlassian.net/browse/CAERUS-225
 
 
 The expressions need include implementation of codeGen, isNull etc. to allow Spark UDF to be operated just as native Spark functions.
-•	The performance of such UDFs will be equivalent to the native Spark functions and support optimization like pushdown etc.
-•	The major disadvantage of this approach is the need to recompile the Spark core SQL module, thus results in custom-built Spark
+- The performance of such UDFs will be equivalent to the native Spark functions and support optimization like pushdown etc.
+- The major disadvantage of this approach is the need to recompile the Spark core SQL module, thus results in custom-built Spark
 
-##2.	Spark SQL Macros
+## 2.	Spark SQL Macros
       The details are described here: https://github.com/hbutani/spark-sql-macros
+      
       Spark SQL Macros provide a capability to register custom functions into a Spark Session that is similar to custom UDF Registration capability of Spark. The difference being that the SQL Macros registration mechanism attempts to translate the function body to an equivalent Spark catalyst Expression with holes(MarcroArg catalyst expressions). A FunctionBuilder that encapsulates this expression is registered in Spark's FunctionRegistry. Then any function invocation is replaced by the equivalent catalyst Expression with the holes replaced by the calling site arguments.
 
 There are 2 potential performance benefits for replacing function calls with native catalyst expressions:
-•	evaluation performance. Since we avoid the SerDe cost at the function boundary.
-•	More importantly, since the plan has native catalyst expressions more optimizations are possible.
-o	For example in the taxRate example below discount calculation can be eliminated.
-o	Pushdown of operations to Datsources has a huge impact. For example see below for the Oracle SQL generated and pushed when a macro is defined instead of a UDF.
+- Evaluation performance. Since we avoid the SerDe cost at the function boundary.
+- More importantly, since the plan has native catalyst expressions more optimizations are possible.
+      - For example in the taxRate example below discount calculation can be eliminated.
+      - Pushdown of operations to Datsources has a huge impact. For example see below for the Oracle SQL generated and pushed when a macro is defined instead of a UDF.
 
-###How To Start:
+### How To Start:
 Follow this link, but need some minor tweaks:
-1.	The version we used to test are Spark 3.1.1 and Scala 2.12.10
-2.	The jar file need to be loaded like this (using –jar might cause problem: )
+- The version we used to test are Spark 3.1.1 and Scala 2.12.10
+- The jar file need to be loaded like this (using –jar might cause problem: )
       spark-shell --driver-class-path sql/target/scala-2.12/spark-sql-macros_2.12.10_0.1.0-SNAPSHOT.jar
-      Running an Example:
+
+Running an Example:
     
 1. Copy people.json file from Spark installation example folder to /data/source/	
 2. spark-shell --driver-class-path sql/target/scala-2.12/spark-sql-macros_2.12.10_0.1.0-SNAPSHOT.jar
@@ -79,22 +81,23 @@ Filter (isnotnull(age#54) AND (age#54 > 15))
 +- FileScan json [name#53,age#54] Batched: false, DataFilters: [isnotnull(age#54), (age#54 > 15)], Format: JSON, Location: InMemoryFileIndex[file:/data/source/people.json], PartitionFilters: [], PushedFilters: [IsNotNull(age), GreaterThan(age,15)], ReadSchema: struct<name:string,age:int>
 ```
 
-##3.	Transport (UDF)
+## 3.	Transport (UDF)
       The details are described here: https://github.com/linkedin/transport
+      
       Transport is a framework for writing performant user-defined functions (UDFs) that are portable across a variety of engines including Apache Spark, Apache Hive, and Presto. Transport UDFs are also capable of directly processing data stored in serialization formats such as Apache Avro. With Transport, developers only need to implement their UDF logic once using the Transport API. Transport then takes care of translating the UDF to native UDF version targeted at various engines or formats. Currently, Transport is capable of generating engine-artifacts for Spark, Hive, and Presto, and format-artifacts for Avro. 
 
 There are 2 potential benefits for Transport:
-•	Unification: one UDF, multiple compute engine translation
-•	Performance: the Spark translation will create native function (without the implementation of codeGen etc.), which will remove the need of ser
+- Unification: one UDF, multiple compute engine translation
+- Performance: the Spark translation will create native function (without the implementation of codeGen etc.), which will remove the need of ser
 
 
 There are 2 potential benefits for Transport:
-•	Unification: one UDF, multiple compute engine translation
-•	Performance: the Spark translation will create native function (without the implementation of codeGen etc.), which will remove the need of serialization/de-serialization between Spark Catalyst and Scala code. Pushdown is not supported.
-###How To Start:
+- Unification: one UDF, multiple compute engine translation
+- Performance: the Spark translation will create native function (without the implementation of codeGen etc.), which will remove the need of serialization/de-serialization between Spark Catalyst and Scala code. Pushdown is not supported.
+### How To Start:
 Follow this link, but need some minor tweaks:
-1.	The version we used to test are Spark 2.3.0 and Scala 2.11.8. For latest Spark and Scala support, some build changes will be needed.
-2.	To build sample functions using
+1. The version we used to test are Spark 2.3.0 and Scala 2.11.8. For latest Spark and Scala support, some build changes will be needed.
+2. To build sample functions using
 
 1. Copy people.json file from Spark installation example folder to /data/source/
 2. spark-shell --jars transportable-udfs-example-udfs/build/libs/transportable-udfs-example-udfs-spark.jar
@@ -102,6 +105,7 @@ Follow this link, but need some minor tweaks:
 ./gradlew build
 ```
 “gradle build” might cause build issue.
+
 Running an Example:
 ```
 SLF4J: Class path contains multiple SLF4J bindings.
