@@ -1,6 +1,6 @@
 # Spark UDF Support
 
-More and more upper level applications like AI field (via Spark Mllib) are using Spark UDFs, while they are notorious in performance. In Facebook production environment, small amount of the UDFs can take up to 70% of the CPU time of the entire company’s queries.
+More and more upper level applications like AI field (via Spark Mllib) are using Spark UDFs, while they are notorious in performance. In Facebook production environment, small amount of the UDFs can take up to 70% of the CPU time of the entire company’s queries (https://databricks.com/session/supporting-over-a-thousand-custom-hive-user-defined-functions ).
 
 Spark UDFs currently have these characteristics:
 - The format is primarily lambda functions that major goal is to operate data row by row. The other complex format like UDAF/UDTF (back ported from Hive), and free form (programming language like Java friendly) are afterthought. This Apache Jira item spells out the need to expand Spark UDF support: https://issues.apache.org/jira/browse/SPARK-23818
