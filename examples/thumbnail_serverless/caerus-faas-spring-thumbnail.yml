@@ -7,12 +7,6 @@ functions:
     lang: springboot
     handler: ./caerus-faas-spring-thumbnail
     image: ywang529/caerus-faas-spring-thumbnail:latest
-    annotations: #Followings are optional
-      # auto invoke this UDF whenever receive PUT and COPY storage events on "imgaes" bucket
-      invocation_event_types: "[{"bucket":"images", "event_type":["put", "copy"]}]" 
-      # This UDF prefers running on GPU, but CPU is also okay if there is no GPU available, and the weight 80 (range 1-100) represents the level of priority  
-      invocation_special_resource: "[{"nvidia.com/gpu", "limit":1, "type":"nvidia-tesla-p100", "affinity":"preferred", "weight":80}]" 
-      # This UDF prefers running on the stroage servers that controls this bucket (data is closer to these servers, ignore this if storage servers are equal).
-      # The priority of GPU (80) is higher than the ndp (50)
-      invocation_ndp: "[{"affinity":"preferred", "weight":50"}]
+    annotations:
+      invocation_event_types: "[put, copy]"
    
