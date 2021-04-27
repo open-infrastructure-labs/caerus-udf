@@ -1,6 +1,6 @@
 # Caerus User Defined Function (UDF) Support
 
-![Caerus UDF Architecture](https://github.com/futurewei-cloud/caerus/blob/master/images/Caerus%20UDF%20Architecture%20(small).jpg)
+![Caerus UDF Architecture](docs/images/Caerus%20UDF%20Architecture%20(small).jpg)
 
 Caerus UDF allows user to define, register, upload, and invoke user define function that can directly operate on storage side. The UDF invocation can be achieved either via explicit call or via automatic event notification.
 
