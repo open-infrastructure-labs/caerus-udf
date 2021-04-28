@@ -20,7 +20,7 @@ The steps below show how to use this deployment automation:
 > root@ubuntu1804:/home/ubuntu/caerus-udf#./build.sh
 ```
 ## Step 2: Set up OPENFAAS and deploy needed serverless functions (e.g. thumbnail function)
-Follow the below link: $CAERUS_UDF_HOME/faas
+Follow the below link: [faas](faas)
 
 ## Step 3: Set up storage system
 Current example is using Minio, but could change to other storage systems if needed. 

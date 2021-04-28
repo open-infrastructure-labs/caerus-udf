@@ -8,7 +8,7 @@ kubectl port-forward -n openfaas svc/gateway 8080:8080 &
 
 **Note**: minio server address is defined in this file:
 
-$CAERUS_UDF_HOME/examples/thumbnail_serverless/template/springboot/src/main/resources/application.properties
+[application.properties](examples/thumbnail_serverless/template/springboot/src/main/resources/application.properties)
 ```
 	server.contextPath=/
 	server.port=3001
