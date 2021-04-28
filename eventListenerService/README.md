@@ -23,7 +23,7 @@ The steps below show how to use this bucket notification:
 
 ## Step 1: Start notification target, such as Redis and Caerus Event Notification Service
 ```
-> cd $CAERUS_HOME/bitnami-docker-redis/
+> cd $CAERUS_UDF_HOME/registry/bitnami-docker-redis/
 > docker-compose -f docker-compose-replicaset.yml up -d
 > mvn clean package
 > java -jar target/EventListenerService-0.0.1-SNAPSHOT.jar
@@ -59,7 +59,7 @@ redis-cli -a yoursecret
 127.0.0.1:6379> monitor
 OK
 ```
-Set up serverless function framework: see details in $CAERUS_UDF_HOME/faas
+Set up serverless function framework: see details in [faas](faas)
 Copy an image file from local to storage (MinIO in this case)
 ```
 mc cp /home/ubuntu/images/new/sample.jpg minio/imagesbucket/
