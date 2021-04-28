@@ -11,12 +11,6 @@ import org.springframework.context.annotation.Bean;
 public class ThumbnailApplication {
 
 	public static void main(String[] args) {
-		/*try {
-			ThumbnailGenerator.main_test();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
-
 		SpringApplication.run(ThumbnailApplication.class, args);
 	}
 

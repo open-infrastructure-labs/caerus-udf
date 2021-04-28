@@ -59,17 +59,17 @@ redis-cli -a yoursecret
 127.0.0.1:6379> monitor
 OK
 ```
-Set up serverless function framework: see details in https://github.com/futurewei-cloud/caerus/tree/master/ndp/udf/faas
+Set up serverless function framework: see details in $CAERUS_UDF_HOME/faas
 Copy an image file from local to storage (MinIO in this case)
 ```
 mc cp /home/ubuntu/images/new/sample.jpg minio/imagesbucket/
-/home/ubuntu/images/new/sample.jpg:  2.44 MiB / 2.44 MiB ▓▓▓▓┃ 76.35 MiB/s 0sroot@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail#
+/home/ubuntu/images/new/sample.jpg:  2.44 MiB / 2.44 MiB ▓▓▓▓┃ 76.35 MiB/s 0sroot@ubuntu1804:/home/ubuntu/caerus-udf/examples/java/thumbnail#
 ```
 Check storage, the thumbnail file will be created in a bucket called thumbnailsbucket
 ```
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail# mc ls minio/thumbnailsbucket
+root@ubuntu1804:/home/ubuntu/caerus-udf/examples/java/thumbnail# mc ls minio/thumbnailsbucket
 [2020-11-10 13:53:53 EST]  6.2KiB sample_thumbnail.png
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/java/thumbnail#
+root@ubuntu1804:/home/ubuntu/caerus-udf/examples/java/thumbnail#
 ```
 
 

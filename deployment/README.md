@@ -1,6 +1,6 @@
 # Caerus UDF Deployment Automation
 
-Caerus UDF related services can be deployed as separate microservice as stated in the README of parent "caerus/ndp/udf" directory, for ease-of-use, here we dockerize the major components as follows:
+Caerus UDF related services can be deployed as separate microservice as stated in the README of parent "caerus-udf" directory, for ease-of-use, here we dockerize the major components as follows:
   1. docker "caerus-ndp-udf-backend": it has major Caerus UDF services and their ports
         * 8000 - Ndp Service
         * 8001 - UDF Service
@@ -16,11 +16,11 @@ The steps below show how to use this deployment automation:
 ## Step 1: Get the latest Caerus code and build udf projects
 ```
 > git pull
-> cd $CAERUS_HOME/caerus/ndp/udf
-> root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf#./build.sh
+> cd $CAERUS_UDF_HOME/
+> root@ubuntu1804:/home/ubuntu/caerus-udf#./build.sh
 ```
 ## Step 2: Set up OPENFAAS and deploy needed serverless functions (e.g. thumbnail function)
-Follow the below link: https://github.com/futurewei-cloud/caerus/tree/master/ndp/udf/faas
+Follow the below link: $CAERUS_UDF_HOME/faas
 
 ## Step 3: Set up storage system
 Current example is using Minio, but could change to other storage systems if needed. 
@@ -40,13 +40,13 @@ SecretKey: minioadmin
 ```
 ## Step 4: Create environmental variable for OPENFAAS secret
 ```
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/deployment# chmod +x create_secrets.sh 
+root@ubuntu1804:/home/ubuntu/caerus-udf/deployment# chmod +x create_secrets.sh 
 
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/deployment# source ./create_secrets.sh 
+root@ubuntu1804:/home/ubuntu/caerus-udf/deployment# source ./create_secrets.sh 
 ```
 ## Step 5: Start dockers
 ```
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/deployment# docker-compose up -d 
+root@ubuntu1804:/home/ubuntu/caerus-udf/deployment# docker-compose up -d 
 ```
 
 ## Step 6: Enable bucket notification to storage system
@@ -62,10 +62,10 @@ Follow the below link: https://docs.min.io/docs/minio-bucket-notification-guide.
 ## Step 7: Test this deployment set up: using Caerus S3 CLI for general storage operations and direct invocation of serverless function
 Start the redis-cli Redis client program to inspect the contents in Redis. Run the monitor Redis command. This prints each operation performed on Redis as it occurs.
 ```
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/s3client# java -jar target/s3client-0.0.1-SNAPSHOT.jar put -b testbucket -f "/home/ubuntu/images/new/sample3.jpg" -k sample3.jpg -u caerus-faas-spring-thumbnail -i "400, 600"
+root@ubuntu1804:/home/ubuntu/caerus-udf/s3client# java -jar target/s3client-0.0.1-SNAPSHOT.jar put -b testbucket -f "/home/ubuntu/images/new/sample3.jpg" -k sample3.jpg -u caerus-faas-spring-thumbnail -i "400, 600"
 Uploading a new object to S3 from a file
 
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/s3client# java -jar target/s3client-0.0.1-SNAPSHOT.jar list -b thumbnailsbucket
+root@ubuntu1804:/home/ubuntu/caerus-udf/s3client# java -jar target/s3client-0.0.1-SNAPSHOT.jar list -b thumbnailsbucket
 ...
 * sample_thumbnail.png
     Last Modified: Mon Feb 15 10:48:03 EST 2021
@@ -77,9 +77,9 @@ root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/s3client# java -jar target/s3
 ## Step 8: Test this deployment set up: automated event-driven invocation of serverless function
 Copy an image file from local to storage, then check newly created thumbnail by serverless function:
 ```
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/eventListenerService# mc cp /home/ubuntu/images/new/sample.jpg minio/imagesbucket/
+root@ubuntu1804:/home/ubuntu/caerus-udf/eventListenerService# mc cp /home/ubuntu/images/new/sample.jpg minio/imagesbucket/
 /home/ubuntu/images/new/sample.jpg:  2.44 MiB / 2.44 MiB ┃▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓┃ 64.30 MiB/s 0s
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/s3client# java -jar target/s3client-0.0.1-SNAPSHOT.jar list -b thumbnailsbucket
+root@ubuntu1804:/home/ubuntu/caerus-udf/s3client# java -jar target/s3client-0.0.1-SNAPSHOT.jar list -b thumbnailsbucket
 ...
 * sample_thumbnail.png
     Last Modified: Mon Feb 15 10:55:12 EST 2021
@@ -90,7 +90,7 @@ root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/s3client# java -jar target/s3
 # Troubleshooting
 All Caerus UDF related services have log files created in the backend container:
 ```
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/deployment# docker exec -it deployment_caerus-ndp-udf-backend_1 bash
+root@ubuntu1804:/home/ubuntu/caerus-udf/deployment# docker exec -it deployment_caerus-ndp-udf-backend_1 bash
 root@ubuntu1804:/home/jars# ls -la /tmp/
 ..
 -rw------- 1 root root    0 Mar 26 12:33 eventListenerService-stderr---supervisor-V3xute.log

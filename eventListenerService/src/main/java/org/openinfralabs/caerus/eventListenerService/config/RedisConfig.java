@@ -90,10 +90,6 @@ public class RedisConfig {
         redisTemplate.setConnectionFactory(jedisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(new StringRedisSerializer());
-        //redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        //redisTemplate.setHashKeySerializer(new JdkSerializationRedisSerializer());
-        //redisTemplate.setValueSerializer(new JdkSerializationRedisSerializer());
-        //redisTemplate.setHashValueSerializer(new StringRedisSerializer());
         redisTemplate.setEnableTransactionSupport(true);
         return redisTemplate;
     }
