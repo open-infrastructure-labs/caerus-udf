@@ -109,7 +109,7 @@ public class RequestHandler {
             // Option #1: Read the input stream and into memory. the JVM size might need to be readjusted
 
             // Option #2: read into a temp file
-            String tmpFileName = tMPSOURCEDIR + key;
+            String tmpFileName = TMPSOURCEDIR + key;
             minioClient.downloadObject(DownloadObjectArgs.builder()
                     .bucket(bucket)
                     .object(key)
