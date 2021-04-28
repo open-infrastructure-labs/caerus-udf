@@ -49,7 +49,7 @@ The software components of Caerus UDF support are listed as follows:
 # Getting Started
 
 ## Serverless Option (Q1 item)
-See detail instructions here: $CAERUS_UDF_HOME/deployment
+See detail instructions here: ![Deployment](deployment)
 
 ## Standalone option (Q3 item)
 To be described.
