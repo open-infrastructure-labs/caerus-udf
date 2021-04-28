@@ -59,7 +59,7 @@ redis-cli -a yoursecret
 127.0.0.1:6379> monitor
 OK
 ```
-Set up serverless function framework: see details in [faas](faas)
+Set up serverless function framework: see details in [faas](../faas)
 Copy an image file from local to storage (MinIO in this case)
 ```
 mc cp /home/ubuntu/images/new/sample.jpg minio/imagesbucket/
