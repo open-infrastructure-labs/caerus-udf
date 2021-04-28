@@ -4,6 +4,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.openinfralabs.caerus.ndpService.service.StorageAdapter;
+import org.openinfralabs.caerus.ndpService.service.StorageAdapterMinioImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -16,13 +19,15 @@ public class AdminInterceptor implements HandlerInterceptor {
     @Autowired
     StorageAdapter adapter;
 
+    Logger logger = LoggerFactory.getLogger(AdminInterceptor.class);
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
 
-        System.out.println("\n-------- AdminInterceptor.preHandle --- ");
+        logger.info("\n-------- AdminInterceptor.preHandle --- ");
 
-       // Getting servlet request URL
+       // Getting servlet request URL: example to show detail s3 request content for debugging
  /*       String url = request.getRequestURL().toString();
 
         // Getting servlet request query string.
@@ -101,14 +106,14 @@ public class AdminInterceptor implements HandlerInterceptor {
     public void postHandle(HttpServletRequest request, HttpServletResponse response, //
                            Object handler, ModelAndView modelAndView) throws Exception {
 
-        System.out.println("\n-------- AdminInterceptor.postHandle --- ");
+        logger.info("\n-------- AdminInterceptor.postHandle --- ");
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, //
                                 Object handler, Exception ex) throws Exception {
 
-        System.out.println("\n-------- AdminInterceptor.afterCompletion --- ");
+        logger.info("\n-------- AdminInterceptor.afterCompletion --- ");
     }
 
 }

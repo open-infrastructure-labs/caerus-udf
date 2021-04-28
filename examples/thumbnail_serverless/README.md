@@ -8,7 +8,7 @@ kubectl port-forward -n openfaas svc/gateway 8080:8080 &
 
 **Note**: minio server address is defined in this file:
 
-https://github.com/futurewei-cloud/caerus/blob/master/ndp/udf/examples/thumbnail_serverless/template/springboot/src/main/resources/application.properties
+$CAERUS_UDF_HOME/examples/thumbnail_serverless/template/springboot/src/main/resources/application.properties
 ```
 	server.contextPath=/
 	server.port=3001
@@ -20,9 +20,9 @@ https://github.com/futurewei-cloud/caerus/blob/master/ndp/udf/examples/thumbnail
 ```
 Make sure to adjust your Minio server IP, port and credentials based on your Minio actual settings, fail to do so it might cause function invocation error: 
 ```
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/thumbnail_serverless# echo '{ "bucketName": "imagesbucket", "objectKey": "sample.jpg", "inputParameters": ["200", "400"] }' | faas invoke caerus-faas-spring-thumbnail
+root@ubuntu1804:/home/ubuntu/caerus-udf/examples/thumbnail_serverless# echo '{ "bucketName": "imagesbucket", "objectKey": "sample.jpg", "inputParameters": ["200", "400"] }' | faas invoke caerus-faas-spring-thumbnail
 Server returned unexpected status code: 400 - Unexpected exception: java.net.NoRouteToHostException: Host is unreachable (Host unreachable)
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/thumbnail_serverless#
+root@ubuntu1804:/home/ubuntu/caerus-udf/examples/thumbnail_serverless#
 ```
 
 

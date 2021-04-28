@@ -99,9 +99,8 @@ public class RequestHandler {
 
             try {
                 FunctionListEntry result = apiInstance.systemFunctionFunctionNameGet(udfKey);
-                //System.out.println(result);
+                logger.info(result.toString());
             } catch (ApiException e) {
-                System.err.println("Exception when calling DefaultApi#systemFunctionFunctionNameGet");
                 e.printStackTrace();
                 logger.error("no function found in the Openfaas deployed function list, so ignore invocation: udfKey = " + udfKey);
                 return ResponseEntity
@@ -134,7 +133,6 @@ public class RequestHandler {
             try {
                 apiInstance.functionFunctionNamePost(udfKey, inputBytes);
             } catch (ApiException e) {
-                System.err.println("Exception when calling DefaultApi#functionFunctionNamePost");
                 logger.error("UDF invoked failed");
                 e.printStackTrace();
                 return ResponseEntity

@@ -45,7 +45,6 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
 
     final String udf_registry_service_uri = "http://localhost:8004/udf";
     final String udf_docker_uri = "http://localhost:8090/";
-    //final String udf_docker_uri = "http://172.17.0.2:8090/";
     final String invocation_event_put = "put";
     final String invocation_event_access = "get";
     final String invocation_event_delete = "delete";
@@ -127,9 +126,6 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
 
             for (S3EventNotificationRecord currRecord : records) {
 
-                // TODO: Need to add a mechanism to only process the "new" event, based on eventtime
-                DateTime eventtime = currRecord.getEventTime();
-                // eventName s3:ObjectAccessed:Get, :Put, and :DeletetmpStr.
                 String eventName = currRecord.getEventName();
                 if (
                         (eventName.toLowerCase().contains(invocation_event_put) && !udfPutList.isEmpty()) ||
@@ -180,11 +176,9 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
 
 
             } catch (ApiException e) {
-                System.err.println("Exception when calling DefaultApi#asyncFunctionFunctionNamePost");
+                logger.error("Exception when calling DefaultApi#asyncFunctionFunctionNamePost");
                 e.printStackTrace();
             }
-
-            System.out.println(response);
 
             List<FunctionListEntry> udfPutList = new ArrayList<FunctionListEntry>();
             List<FunctionListEntry> udfDeleteList = new ArrayList<FunctionListEntry>();
@@ -230,9 +224,6 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
 
             for (S3EventNotificationRecord currRecord : records) {
 
-                // TODO: Need to add a mechanism to only process the "new" event, based on eventtime
-                DateTime eventtime = currRecord.getEventTime();
-                // eventName s3:ObjectAccessed:Get, :Put, and :DeletetmpStr.
                 String eventName = currRecord.getEventName();
 
                 if (eventName.toLowerCase().contains(invocation_event_put)) {
@@ -270,8 +261,7 @@ public class KeySpaceNotificationMessageListener implements MessageListener {
                             try {
                                 apiInstance.functionFunctionNamePost(functionName, inputBytes);
                             } catch (ApiException e) {
-                                System.err.println("Exception when calling DefaultApi#functionFunctionNamePost");
-                                logger.error("UDF invoked failed");
+                                logger.error("Exception when calling DefaultApi#functionFunctionNamePost");
                                 e.printStackTrace();
                             }
 

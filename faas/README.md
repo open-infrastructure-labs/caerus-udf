@@ -154,7 +154,7 @@ password: => to get it using "echo $PASSWORD" by following step 10.
 
 1. To create a new faas function, first check if the programing language is supported by openfaas default:
 ``` 
-root@caerus-demo:/home/yong/caerus/ndp/udf/faas# faas template store list
+root@caerus-demo:/home/yong/caerus-udf/faas# faas template store list
 
 NAME                     SOURCE             DESCRIPTION
 csharp                   openfaas           Classic C# template
@@ -197,12 +197,12 @@ rust-http                openfaas-incubator Rust HTTP template
 bash-streaming           openfaas-incubator Bash Streaming template
 cobol                    devries            COBOL Template
 
-root@caerus-demo:/home/yong/caerus/ndp/udf/faas#
+root@caerus-demo:/home/yong/caerus-udf/faas#
 
 ``` 
 2. If the language support is not there, follow the examples of scala and spring boot examples in the template and examples folders under this directory:
 ``` 
-root@caerus-demo:/home/yong/caerus/ndp/udf/faas# ls
+root@caerus-demo:/home/yong/caerus-udf/faas# ls
 examples  template
 ``` 
 3. To support a custom function template that has different language (using scala as an example, you can see example source code for scala and spring boot under examples folder) or different build systems other than default gradle), here are the steps:
@@ -250,7 +250,7 @@ Step 1 - Step 7 are same as above in Getting Started (Using Public Docker Hub)
 
 8. Start private docker registry and registry ui docker containers, start kind cluster, set up network connection between kind cluster and docker registry containers, and add annotations for all kind nodes by calling this Caerus script, "kind-with-registry.sh" :
 ``` 
-cd /home/ubuntu/caerus/caerus/ndp/udf/faas
+cd /home/ubuntu/caerus-udf/faas
 chmod +x kind-with-registry.sh
 ./kind-with-registry.sh
 ```
@@ -278,7 +278,7 @@ $ docker logs -f kind-registry
 10. Deploy OpenFaas
 ```
 $ arkade install openfaas
-$ root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/faas# kubectl -n openfaas get deployments -l "release=openfaas, app=openfaas"
+$ root@ubuntu1804:/home/ubuntu/caerus-udf/faas# kubectl -n openfaas get deployments -l "release=openfaas, app=openfaas"
 NAME                READY   UP-TO-DATE   AVAILABLE   AGE
 alertmanager        1/1     1            1           62m
 basic-auth-plugin   1/1     1            1           62m
@@ -286,7 +286,7 @@ gateway             1/1     1            1           62m
 nats                1/1     1            1           62m
 prometheus          1/1     1            1           62m
 queue-worker        1/1     1            1           62m
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/faas# 
+root@ubuntu1804:/home/ubuntu/caerus-udf/faas# 
 ```
 11. Get cli and login using faas-cli:
 ```
@@ -296,8 +296,8 @@ $ arkade get faas-cli
 ```
 12. Modify image item to in function yaml file (using our thumbnail serverless function as an example, in step 14, it will describe the entire process of creating a test function)
 ```
-cd /home/ubuntu/caerus/caerus/ndp/udf/examples/thumbnail_serverless
-root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/examples/thumbnail_serverless# faas-cli up -f caerus-faas-spring-thumbnail-private-registry.yml
+cd /home/ubuntu/caerus-udf/examples/thumbnail_serverless
+root@ubuntu1804:/home/ubuntu/caerus-udf/examples/thumbnail_serverless# faas-cli up -f caerus-faas-spring-thumbnail-private-registry.yml
 ```
 13. Verify that serverless function is ready:
 ```

@@ -32,7 +32,7 @@ public class UdfController {
      *
      * @param newUdf
      * @param file
-     * @return
+     * @return ResponseEntity<String>
      */
     // When send both binary file and json object, we can only use form, not raw data request body, so the newUdf can only be string, not object
     // so send string all the way to udfDaoImpl to change back to NewUdf object from string explicitly

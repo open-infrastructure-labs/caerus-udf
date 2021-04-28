@@ -12,7 +12,7 @@ mvn clean package
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1 top level help:
 ```
-        root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/s3client# java -jar target/s3client-0.0.1-SNAPSHOT.jar --help
+        root@ubuntu1804:/home/ubuntu/caerus-udf/s3client# java -jar target/s3client-0.0.1-SNAPSHOT.jar --help
         Unknown option: --help
         Usage: caerus_s3cli [COMMAND]
         Commands:
@@ -26,7 +26,7 @@ mvn clean package
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.2 subcommand "put" command help:
 ```
-        root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/s3client# java -jar target/s3client-0.0.1-SNAPSHOT.jar put --help
+        root@ubuntu1804:/home/ubuntu/caerus-udf/s3client# java -jar target/s3client-0.0.1-SNAPSHOT.jar put --help
         Usage: caerus_s3cli put [-h] -b=<bucketName> -f=<uploadFileName>
                                 [-i=<udfInputParameters>] [-k=<keyName>] [-u=<udfName>]
         Upload an object/file to a S3 bucket while provide option to invoke UDF on the
@@ -41,5 +41,5 @@ mvn clean package
           -k, --keyName=<keyName>   new object key name in s3, use the same file name as key
                                       if not supplied
           -u, --udfName=<udfName>   UDF function name
-        root@ubuntu1804:/home/ubuntu/caerus/caerus/ndp/udf/s3client#
+        root@ubuntu1804:/home/ubuntu/caerus-udf/s3client#
 ```

@@ -55,6 +55,8 @@ public class ApiClient {
 
     // TODO: A temp solution here. Below 4 parameters should be read from env or files. FIXME later
     private String basePath = "http://127.0.0.1:8080";
+
+    // This user/password pair is an example for the user, the real user name password will be read in through env
     private String username = "admin";
     private String password = "5922e2bb466f691003a4761976341097997954f9";
     private boolean debugging = false;
@@ -66,9 +68,6 @@ public class ApiClient {
     private Map<String, Authentication> authentications;
 
     private DateFormat dateFormat;
-    private DateFormat datetimeFormat;
-    private boolean lenientDatetimeFormat;
-    private int dateLength;
 
     private InputStream sslCaCert;
     private boolean verifyingSsl;
@@ -110,18 +109,7 @@ public class ApiClient {
         // Prevent the authentications from being modified.
         authentications = Collections.unmodifiableMap(authentications);
     }
-/*
-    private static OkHttpClient createAuthenticatedClient(final String username,
-                                                          final String password) {
-        // build client with authentication information.
-        OkHttpClient httpClient = new OkHttpClient.Builder().authenticator(new Authenticator() {
-            public Request authenticate(Route route, Response response) throws IOException {
-                String credential = Credentials.basic(username, password);
-                return response.request().newBuilder().header("Authorization", credential).build();
-            }
-        }).build();
-        return httpClient;
-    }*/
+
 
     /**
      * Get base path

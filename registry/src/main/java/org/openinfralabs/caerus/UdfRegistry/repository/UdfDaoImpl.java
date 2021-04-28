@@ -35,10 +35,6 @@ public class UdfDaoImpl implements UdfDao {
         try {
             // Creating a random UUID (Universally unique identifier).
 
-            // TODO: Need a decision on if the ID is really needed, it is probably enough to just use name as a key
-            //UUID uuid = UUID.randomUUID();
-            //String randomUUIDString = uuid.toString();
-
             ObjectMapper mapper = new ObjectMapper();
             NewUdf newUdf = mapper.readerFor(NewUdf.class).readValue(newUdfStr);
 
@@ -54,7 +50,7 @@ public class UdfDaoImpl implements UdfDao {
             udf.setInvocationEvents(newUdf.getInvocationEvents());
             redisTemplate.opsForHash().put(KEY, newUdf.getName(), udf);
             // use same uuid as key of file table
-            // TODO: for large file, we should save it to the file system, and only save the path here, load it when needed
+            // for large file, we should save it to the file system, and only save the path here, load it when needed
             //       also redis have max size of 512 MB, it should be enough for most of the udfs, but it is still better
             //       to have a second mechanism
 

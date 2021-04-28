@@ -39,15 +39,4 @@ class StorageControllerTest {
 
     }
 
-    @Test
-    void awsUploadFileM() {
-    }
-
-    @Test
-    void getObject() {
-    }
-
-    @Test
-    void deleteObjects() {
-    }
 }
