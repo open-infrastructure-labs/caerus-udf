@@ -4,10 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.openinfralabs.caerus.ndpService.service.StorageAdapter;
-import org.openinfralabs.caerus.ndpService.service.StorageAdapterMinioImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,19 +14,16 @@ import org.springframework.web.servlet.ModelAndView;
 public class AdminInterceptor implements HandlerInterceptor {
     // This is good to have for debug and figure out what exactly the raw request that sent by a client
     // like aws sdk or minio client sdk
-    @Autowired
-    StorageAdapter adapter;
 
-    Logger logger = LoggerFactory.getLogger(AdminInterceptor.class);
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
 
-        logger.info("\n-------- AdminInterceptor.preHandle --- ");
+        System.out.println("\n-------- AdminInterceptor.preHandle --- ");
 
-       // Getting servlet request URL: example to show detail s3 request content for debugging
- /*       String url = request.getRequestURL().toString();
+       // Getting servlet request URL
+        String url = request.getRequestURL().toString();
 
         // Getting servlet request query string.
         String queryString = request.getQueryString();
@@ -47,7 +42,7 @@ public class AdminInterceptor implements HandlerInterceptor {
         String query = request.getQueryString();
 
 
-        System.out.println("Url: " + url + "<br/>");
+ /*       System.out.println("Url: " + url + "<br/>");
         System.out.println("Uri: " + uri + "<br/>");
         System.out.println("Scheme: " + scheme + "<br/>");
         System.out.println("Server Name: " + serverName + "<br/>");
@@ -106,14 +101,14 @@ public class AdminInterceptor implements HandlerInterceptor {
     public void postHandle(HttpServletRequest request, HttpServletResponse response, //
                            Object handler, ModelAndView modelAndView) throws Exception {
 
-        logger.info("\n-------- AdminInterceptor.postHandle --- ");
+        System.out.println("\n-------- AdminInterceptor.postHandle --- ");
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, //
                                 Object handler, Exception ex) throws Exception {
 
-        logger.info("\n-------- AdminInterceptor.afterCompletion --- ");
+        System.out.println("\n-------- AdminInterceptor.afterCompletion --- ");
     }
 
 }
