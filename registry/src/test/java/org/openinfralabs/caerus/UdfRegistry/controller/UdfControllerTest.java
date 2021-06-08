@@ -49,4 +49,28 @@ class UdfControllerTest {
         assertEquals(200, result.getResponse().getStatus());
     }
 
+    @Test
+    void fetchAllUdf() {
+    }
+
+    @Test
+    void getUdfbyId() {
+    }
+
+    @Test
+    void deleteUdfbyId() {
+    }
+
+    @Test
+    void updateUdfExecutable() {
+    }
+
+
+    @Test
+    void updateUdfConfig() {
+    }
+
+    @Test
+    void getFileById() {
+    }
 }

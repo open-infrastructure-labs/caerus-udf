@@ -5,8 +5,11 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.httpclient.ChunkedInputStream;
 
+import org.openinfralabs.caerus.ndpService.model.CaerusUdf;
 import org.openinfralabs.caerus.ndpService.service.StorageAdapter;
+import org.openinfralabs.caerus.ndpService.service.StorageAdapterMinioImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +25,11 @@ import java.util.*;
 import org.openinfralabs.caerus.ndpService.model.UdfInvocationMetadata;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 
 
 @RestController
@@ -33,7 +41,9 @@ public class StorageController {
 
 
     @Autowired
-    StorageAdapter adapter;
+    //@Qualifier("storageAdapterHdfsImpl")
+    //@Qualifier("storageAdapterMinioImpl")
+    StorageAdapterMinioImpl adapter;
 
 
     // This is to download a object from a S3 bucket
@@ -82,6 +92,28 @@ public class StorageController {
         boolean success = adapter.listObjects(bucket, contentXMLBuilder);
 
         if (success) {
+            if (headers.containsKey("CaerusUDF".toLowerCase(Locale.ROOT))) {
+                String udfXML = headers.get("CaerusUDF".toLowerCase(Locale.ROOT));
+                try {
+                    JAXBContext jc = JAXBContext.newInstance(CaerusUdf.class);
+                    Unmarshaller unmarshaller = jc.createUnmarshaller();
+                    StreamSource streamSource = new StreamSource(new StringReader(udfXML));
+                    JAXBElement<CaerusUdf> je = unmarshaller.unmarshal(streamSource, CaerusUdf.class);
+
+                    CaerusUdf udf = (CaerusUdf) je.getValue();
+
+
+                    System.out.println("Udf Function id:- " + String.valueOf(udf.getId()));
+                    System.out.println("Udf Function Name:- " + udf.getFunctionName());
+                    System.out.println("Udf Function Inputparameters:- " + udf.getFunctionInputParameters());
+
+                    // TODO: hook up with serverless udf to invoke
+
+                } catch (JAXBException e) {
+                    e.printStackTrace();
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                }
+            }
             return new ResponseEntity<String>(contentXMLBuilder.toString(), HttpStatus.OK);
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -175,7 +207,7 @@ public class StorageController {
             List<String> inputParameters = Arrays.asList(elements);
             metadataObj.setInputParameters(inputParameters);
 
-            adapter.uploadFile(bucket, filename, inputStream, metadataObj);
+            adapter.uploadFile(bucket, filename, inputStream, metadataObj, "");
 
             return ResponseEntity.ok("File uploaded and function invoked successfully.");
         }
@@ -206,7 +238,7 @@ public class StorageController {
 
         UdfInvocationMetadata metadataObj = getMetadataObject(metadata);
 
-        adapter.uploadFile(bucket, filename, inputStream, metadataObj);
+        adapter.uploadFile(bucket, filename, inputStream, metadataObj, "");
 
 
         Map<String, String> result = new HashMap<>();
