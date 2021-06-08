@@ -42,6 +42,8 @@ public final class ThumbnailGenerator {
         inputStreams.add(is);
 
         Map<String, String> parameters = new HashMap<String, String>();
+        //parameters.put(WATERMARKFILENAME, watermarkFileName);
+
         OutputStream os = new FileOutputStream(outputFileName);
         outputStreams.add(os);
         invoke(inputStreams, outputStreams, parameters);

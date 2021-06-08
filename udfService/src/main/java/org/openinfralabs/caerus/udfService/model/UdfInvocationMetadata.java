@@ -37,7 +37,7 @@ public class UdfInvocationMetadata implements Serializable {
     public void setInputParameters(List<String> inputParameters) {
 
         this.inputParameters = inputParameters;
-
+        Optional.ofNullable(inputParameters);
     }
 
     public Optional<List<String>> getExtraResources() {
@@ -46,6 +46,6 @@ public class UdfInvocationMetadata implements Serializable {
 
     public void setExtraResources(List<String> extraResources) {
         this.extraResources = extraResources;
-
+        Optional.ofNullable(extraResources);
     }
 }
