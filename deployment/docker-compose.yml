@@ -20,6 +20,7 @@ services:
       - "8001:8001"
       - "8002:8002"
       - "8003:8003"
+      - "8004:8004"
     depends_on:
       - caerus-redis-primary
 
