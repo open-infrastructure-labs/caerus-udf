@@ -3,6 +3,9 @@ package org.openinfralabs.caerus.ndpService.controller;
 import com.google.gson.JsonObject;
 import org.openinfralabs.caerus.ndpService.model.UdfInvocationMetadata;
 import org.openinfralabs.caerus.ndpService.service.StorageAdapterHdfsImpl;
+import org.openinfralabs.caerus.ndpService.service.StorageAdapterMinioImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +17,14 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.util.*;
 
+import org.json.*;
+
 
 @RestController
 @RequestMapping("/webhdfs/v1")
 public class HDFSStorageController {
 
+    Logger logger = LoggerFactory.getLogger(HDFSStorageController.class);
     private static String FUNCTION_NAME_KEY = "function_name";
     private static String FUNCTION_INPUTPARAMETERS_KEY = "function_inputParameters";
     private static String CAERUS_UDF_PARAMETERS_NAME = "CaerusUDF";
@@ -31,7 +37,7 @@ public class HDFSStorageController {
 
     // This is to handle putObject (upload) or copyObject request sent from aws sdk
     @PutMapping("{bucket}/{filename}")
-    public ResponseEntity<String> awsUploadFileM(@PathVariable String bucket, @PathVariable String filename,
+    public ResponseEntity<String> hdfsUploadFile(@PathVariable String bucket, @PathVariable String filename,
                                                  @RequestHeader Map<String, String> headers,
                                                  @RequestBody MultipartFile file,
                                                  //@RequestBody File file2,
@@ -55,8 +61,30 @@ public class HDFSStorageController {
 
         if (headers.containsKey(CAERUS_UDF_PARAMETERS_NAME.toLowerCase(Locale.ROOT))) {
             udfXML = headers.get(CAERUS_UDF_PARAMETERS_NAME.toLowerCase(Locale.ROOT));
-            System.out.println("UDF XML: " + udfXML);
-            //TODO: construct UdfInvocationMetadata from XML for serverless invocation
+            logger.info("UDF XML: " + udfXML);
+
+            // get metadata info from xml request headers
+            String function_name = "";//headers.get((AWS_METADATA_PREFIX + FUNCTION_NAME_KEY).toLowerCase());
+            String comma_separated_inputParameters = "";//headers.get((AWS_METADATA_PREFIX + FUNCTION_INPUTPARAMETERS_KEY).toLowerCase());
+
+            try {
+                JSONObject json = XML.toJSONObject(udfXML);
+                String jsonString = json.toString(4);
+
+                JSONObject caerusUdfJson = new JSONObject(json.get(CAERUS_UDF_PARAMETERS_NAME.toLowerCase(Locale.ROOT)).toString());
+                function_name = caerusUdfJson.get(FUNCTION_NAME_KEY).toString();
+                comma_separated_inputParameters = caerusUdfJson.get(FUNCTION_INPUTPARAMETERS_KEY).toString();
+                logger.info(jsonString);
+
+            } catch (JSONException e) {
+                 logger.info(e.toString());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+
+            metadataObj.setName(function_name);
+            String[] elements = comma_separated_inputParameters.split(", ");
+            List<String> inputParameters = Arrays.asList(elements);
+            metadataObj.setInputParameters(inputParameters);
         }
 
         String redirectURL = "";

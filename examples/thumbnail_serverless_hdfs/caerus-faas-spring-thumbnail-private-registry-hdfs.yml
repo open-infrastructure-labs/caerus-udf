@@ -1,0 +1,11 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  caerus-faas-spring-thumbnail-hdfs:
+    lang: springboot
+    handler: ./caerus-faas-spring-thumbnail-hdfs
+    image: localhost:5000/caerus-faas-spring-thumbnail-hdfs:latest
+    annotations:
+      invocation_event_types: "[put, copy]"

@@ -9,7 +9,13 @@ import org.openinfralabs.caerus.ndpService.utils.HdfsConnectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -45,7 +51,14 @@ public class StorageAdapterHdfsImpl implements StorageAdapter {
     final String DEFAULT_INPUT_PARAMETERS_KEY = "inputParameters";
 
 
-
+    /**
+     *
+     * @param bucket -- the folder name on hdfs after upload
+     * @param filename -- new file name on hdfs after upload
+     * @param inputStream -- upload file input stream
+     * @param metadata -- udf metadata info: function name and input parameters
+     * @param optionalParametersJson -- data node redirect info
+     */
 
     @Override
     public void uploadFile(String bucket, String filename, InputStream inputStream, UdfInvocationMetadata metadata, String optionalParametersJson) {
@@ -106,7 +119,51 @@ public class StorageAdapterHdfsImpl implements StorageAdapter {
         }
 
         // Step 2: invoke UDF on object
-        // TODO: add udf invocation
+        // see if there is udf metadata
+        if (metadata != null) {
+            Map<String, String> userMetadata = new HashMap<>();
+            userMetadata.put("udfName", metadata.getName());
+
+            Optional<List<String>> extraResources = metadata.getExtraResources();
+            if (extraResources.isPresent()) {
+                String extraResourcesCommaSeparated = String.join(",", extraResources.get());
+                userMetadata.put("extraResources", extraResourcesCommaSeparated);
+            }
+            Optional<List<String>> inputParameters = metadata.getInputParameters();
+            if (inputParameters.isPresent()) {
+                String inputParametersCommaSeparated = String.join(",", inputParameters.get());
+                userMetadata.put(DEFAULT_INPUT_PARAMETERS_KEY, inputParametersCommaSeparated);
+            }
+
+            RestTemplate udfServiceTemplate = new RestTemplate();
+
+            String path = udfService_uri + bucket + "/" + filename;
+
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(DEFAULT_UDF_KEY, metadata.getName());
+
+            if (!userMetadata.isEmpty() && userMetadata.containsKey(DEFAULT_INPUT_PARAMETERS_KEY)) {
+                String inputParametersCommaSeparated = userMetadata.get(DEFAULT_INPUT_PARAMETERS_KEY);
+                params.put(DEFAULT_INPUT_PARAMETERS_KEY, inputParametersCommaSeparated);
+            }
+
+            UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(path);
+            MultiValueMap<String, String> paramsMVMap = new LinkedMultiValueMap<>();
+            paramsMVMap.setAll(params);
+            if (!paramsMVMap.isEmpty()) {
+                uriBuilder.queryParams(paramsMVMap);
+            }
+
+            ResponseEntity<String> responseEntity = udfServiceTemplate.getForEntity(uriBuilder.build().encode().toUri(), String.class);
+
+            boolean isOK = responseEntity.getStatusCode().equals(HttpStatus.OK);
+            if (isOK)
+                logger.info("UDF invoked successfully: " + filename);
+            else
+                logger.error("UDF invoked failed: " + filename);
+
+        }
+
     }
 
     @Override

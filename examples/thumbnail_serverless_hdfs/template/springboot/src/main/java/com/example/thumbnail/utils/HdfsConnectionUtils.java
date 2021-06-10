@@ -1,6 +1,8 @@
-package org.openinfralabs.caerus.hdfsclient.utils;
+package com.example.thumbnail.utils;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -16,11 +18,13 @@ import java.util.Optional;
 
 public final class HdfsConnectionUtils {
 
+
     // The default host to connect to
-    public static final String DEFAULT_HOST = "localhost";
+    //public static final String DEFAULT_HOST = "localhost";
+    public static final String DEFAULT_HOST = "192.168.1.10";
 
     // The default port
-    public static final String DEFAULT_PORT = "9870";
+    public static final String DEFAULT_PORT = "89870";
 
     // The default username
     public static final String DEFAULT_USERNAME = "root";
