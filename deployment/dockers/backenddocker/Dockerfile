@@ -18,14 +18,15 @@ ADD deployment/supervisor.conf /etc/supervisor.conf
 
 # Ports
 # 8000 - Ndp Service
-# 8001 - UDF Service
-# 8002 - Event Listener Service
-# 8003 - Registry Service
+# 8002 - UDF Service
+# 8003 - Event Listener Service
+# 8004 - Registry Service
 
 EXPOSE 8000
 EXPOSE 8001
 EXPOSE 8002
 EXPOSE 8003
+EXPOSE 8004
 # Get ready to run command
 #ENTRYPOINT ["./bin/onos-service"]
 CMD ["supervisord", "-c", "/etc/supervisor.conf"]

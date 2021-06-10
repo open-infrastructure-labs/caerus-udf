@@ -7,6 +7,7 @@ import org.openinfralabs.caerus.ndpService.model.UdfInvocationMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import java.util.TimeZone;
 
 
 @Service
+//@Qualifier("storageAdapterMinioImpl")
 public class StorageAdapterMinioImpl implements StorageAdapter {
 
     // adding conditional compiling flag
@@ -47,7 +49,7 @@ public class StorageAdapterMinioImpl implements StorageAdapter {
 
 
     @Override
-    public void uploadFile(String bucket, String filename, InputStream inputStream, UdfInvocationMetadata metadata) {
+    public void uploadFile(String bucket, String filename, InputStream inputStream, UdfInvocationMetadata metadata, String optionalParametersJson) {
         try {
             boolean found =
                     minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());

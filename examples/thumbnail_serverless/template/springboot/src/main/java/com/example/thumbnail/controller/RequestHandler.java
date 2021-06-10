@@ -40,9 +40,9 @@ public class RequestHandler {
     @Autowired
     MinioClient minioClient;
 
-    static final String THUMBNAILSBUCKET = "thumbnailsbucket";
-    static final String DEFAULT_INPUT_PARAMETER = "inputParameters";
-    static final String TMPSOURCEDIR = "/tmp/";
+    static final String thumbnailsBucket = "thumbnailsbucket";
+    public static String DEFAULT_INPUT_PARAMETER = "inputParameters";
+    static final String tmpSourceDir = "/tmp/";
 
     @Autowired
     private Handler handler;
@@ -107,9 +107,37 @@ public class RequestHandler {
             //      2. read into a temp file, it doesn't have memory issue, but the down side is that we need to create/delete a temp file. Decide to use this.
 
             // Option #1: Read the input stream and into memory. the JVM size might need to be readjusted
+            /*
+            InputStream inputStreamFromStorage = minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(key)
+                            .build());
+
+            ByteArrayOutputStream data = new ByteArrayOutputStream();
+            byte[] buf = new byte[16384];
+            int bytesRead;
+            try {
+                while ((bytesRead = inputStreamFromStorage.read(buf, 0, buf.length)) != -1) {
+                    logger.info("read something: " + String.valueOf(bytesRead));
+                    data.write(buf, 0, bytesRead);
+                }
+            } catch (Exception e) {
+                logger.warn("Minio bug: premature close of socket with the last packet, moving on....");
+            }
+
+            data.flush();
+            try(OutputStream outputStream = new FileOutputStream("/tmp/sample.jpg")) {
+                data.writeTo(outputStream);
+            }
+            /// Close the input stream.
+            inputStreamFromStorage.close();
+            InputStream inputStream = new ByteArrayInputStream(data.toByteArray());
+
+             */
 
             // Option #2: read into a temp file
-            String tmpFileName = TMPSOURCEDIR + key;
+            String tmpFileName = tmpSourceDir + key;
             minioClient.downloadObject(DownloadObjectArgs.builder()
                     .bucket(bucket)
                     .object(key)
@@ -134,13 +162,13 @@ public class RequestHandler {
 
 
             // upload to minio
-            boolean foundTarget = minioClient.bucketExists(BucketExistsArgs.builder().bucket( THUMBNAILSBUCKET).build());
+            boolean foundTarget = minioClient.bucketExists(BucketExistsArgs.builder().bucket(thumbnailsBucket).build());
             if (foundTarget) {
-                logger.info("found Bucket: " +  THUMBNAILSBUCKET);
+                logger.info("found Bucket: " + thumbnailsBucket);
             } else {
                 // if there is no such bucket, it might not be error, the bucket might be deleted after the event, log warning and move on
-                logger.warn("bucket not exist unexpectedly: " +  THUMBNAILSBUCKET);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("can't find bucket: " +  THUMBNAILSBUCKET);
+                logger.warn("bucket not exist unexpectedly: " + thumbnailsBucket);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("can't find bucket: " + thumbnailsBucket);
             }
 
             // thumbnail should be smaller enough by using byte array transfer, otherwise we can use NIO channels to redirect
@@ -151,14 +179,14 @@ public class RequestHandler {
 
             minioClient.putObject(
                     PutObjectArgs.builder()
-                            .bucket(THUMBNAILSBUCKET)
+                            .bucket(thumbnailsBucket)
                             .object(thumbnailObjName)
                             .stream(thumbnailInStream, thumbnailInStream.available(), -1)
                             .build());
 
             thumbnailInStream.close();
 
-            logger.info("Successfully uploaded as object " + thumbnailObjName + " to Bucket: " +  THUMBNAILSBUCKET);
+            logger.info("Successfully uploaded as object " + thumbnailObjName + " to Bucket: " + thumbnailsBucket);
 
             // clean up temp files
             File infile = new File(tmpFileName);

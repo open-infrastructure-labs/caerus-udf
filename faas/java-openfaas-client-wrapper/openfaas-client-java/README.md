@@ -1,9 +1,9 @@
 # openfaas-client
 
 ## Credit to this site: https://github.com/cloudatio/openfaas-client-java
-Our contributions are to: 
-  - Add basic authentication support
-  - Updatie code and depend libraries (e.g. from okhttp to okhttp3 etc.).
+Our contributions are to:
+- Add basic authentication support
+- Updatie code and depend libraries (e.g. from okhttp to okhttp3 etc.).
 
 ## Requirements
 
