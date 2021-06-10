@@ -37,9 +37,6 @@ public class PutCommand implements Runnable {
     private static String CAERUS_UDF_PARAMETERS_NAME = "CaerusUDF";
     private static String CAERUS_REDIRECT_URL_NAME = "CaerusRediectURL";
 
-    // TODO: will need set dockers IPs for data nodes later to get natural mapping, for now use static IPs
-    private static String DATA_NODE1_DEFAULT_IP = "172.20.0.4";
-
     private static String FUNCTION_NAME_KEY = "function_name";
     //private static String FUNCTION_NAME_VALUE = "caerus-faas-spring-thumbnail";
     private static String FUNCTION_INPUTPARAMETERS_KEY = "function_inputParameters";
