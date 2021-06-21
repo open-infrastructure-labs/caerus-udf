@@ -5,10 +5,6 @@
 kubectl port-forward -n openfaas svc/gateway 8080:8080 &
 ```
 3. HDFS cluster (can be dockers cluster) is up running by following this link:
-[]
-
-
-
 [caerus-udf/ndpService/README.md](../../ndpService/README.md)
 
 
