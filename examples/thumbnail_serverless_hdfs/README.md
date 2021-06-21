@@ -7,9 +7,9 @@ kubectl port-forward -n openfaas svc/gateway 8080:8080 &
 3. HDFS cluster (can be dockers cluster) is up running by following this link:
 []
 
-**Note**: minio server address is defined in this file:
 
-[caerus-udf/ndpService/README.md](../ndpService/README.md)
+
+[caerus-udf/ndpService/README.md](../../ndpService/README.md)
 
 
 
