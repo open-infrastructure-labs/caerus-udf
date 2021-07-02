@@ -17,6 +17,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -88,11 +89,12 @@ public class RedisConfig {
 
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(jedisConnectionFactory());
+        redisTemplate.setDefaultSerializer(new StringRedisSerializer());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(new StringRedisSerializer());
         //redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         //redisTemplate.setHashKeySerializer(new JdkSerializationRedisSerializer());
-        //redisTemplate.setValueSerializer(new JdkSerializationRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
         //redisTemplate.setHashValueSerializer(new StringRedisSerializer());
         redisTemplate.setEnableTransactionSupport(true);
         return redisTemplate;
@@ -132,7 +134,7 @@ public class RedisConfig {
 
         RedisMessageListenerContainer listenerContainer = new RedisMessageListenerContainer();
         listenerContainer.setConnectionFactory(jedisConnectionFactory());
-        //listenerContainer.addMessageListener(messageListener(), new PatternTopic("__keyspace@*:*"));
+        listenerContainer.addMessageListener(messageListener(), new PatternTopic("__keyspace@*:*"));
         listenerContainer.addMessageListener(messageListener(), new PatternTopic("__keyevent@*:*"));
         listenerContainer.setTaskExecutor(Executors.newFixedThreadPool(4));
 

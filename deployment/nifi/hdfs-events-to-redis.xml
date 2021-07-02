@@ -1,0 +1,793 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<template encoding-version="1.3">
+    <description>nifi gethdfsevents and redis processors</description>
+    <groupId>fb64c00e-0179-1000-b616-315e55142343</groupId>
+    <name>hdfs-events-to-redis</name>
+    <snippet>
+        <processGroups>
+            <id>d39fbb33-45cb-3757-0000-000000000000</id>
+            <parentGroupId>0c935175-8b32-38d0-0000-000000000000</parentGroupId>
+            <position>
+                <x>0.0</x>
+                <y>0.0</y>
+            </position>
+            <comments></comments>
+            <contents>
+                <connections>
+                    <id>ba207dab-c514-3620-0000-000000000000</id>
+                    <parentGroupId>d39fbb33-45cb-3757-0000-000000000000</parentGroupId>
+                    <backPressureDataSizeThreshold>1 GB</backPressureDataSizeThreshold>
+                    <backPressureObjectThreshold>10000</backPressureObjectThreshold>
+                    <destination>
+                        <groupId>d39fbb33-45cb-3757-0000-000000000000</groupId>
+                        <id>05ae5010-7f50-3dc9-0000-000000000000</id>
+                        <type>PROCESSOR</type>
+                    </destination>
+                    <flowFileExpiration>0 sec</flowFileExpiration>
+                    <labelIndex>1</labelIndex>
+                    <loadBalanceCompression>DO_NOT_COMPRESS</loadBalanceCompression>
+                    <loadBalancePartitionAttribute></loadBalancePartitionAttribute>
+                    <loadBalanceStatus>LOAD_BALANCE_NOT_CONFIGURED</loadBalanceStatus>
+                    <loadBalanceStrategy>DO_NOT_LOAD_BALANCE</loadBalanceStrategy>
+                    <name></name>
+                    <selectedRelationships>success</selectedRelationships>
+                    <source>
+                        <groupId>d39fbb33-45cb-3757-0000-000000000000</groupId>
+                        <id>ef6373ae-914e-31ec-0000-000000000000</id>
+                        <type>PROCESSOR</type>
+                    </source>
+                    <zIndex>0</zIndex>
+                </connections>
+                <controllerServices>
+                    <id>6487b603-8b45-39e2-0000-000000000000</id>
+                    <parentGroupId>d39fbb33-45cb-3757-0000-000000000000</parentGroupId>
+                    <bundle>
+                        <artifact>nifi-redis-nar</artifact>
+                        <group>org.apache.nifi</group>
+                        <version>1.13.2</version>
+                    </bundle>
+                    <comments></comments>
+                    <descriptors>
+                        <entry>
+                            <key>Redis Mode</key>
+                            <value>
+<name>Redis Mode</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Connection String</key>
+                            <value>
+<name>Connection String</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Database Index</key>
+                            <value>
+<name>Database Index</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Communication Timeout</key>
+                            <value>
+<name>Communication Timeout</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Cluster Max Redirects</key>
+                            <value>
+<name>Cluster Max Redirects</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Sentinel Master</key>
+                            <value>
+<name>Sentinel Master</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Password</key>
+                            <value>
+<name>Password</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Max Total</key>
+                            <value>
+<name>Pool - Max Total</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Max Idle</key>
+                            <value>
+<name>Pool - Max Idle</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Min Idle</key>
+                            <value>
+<name>Pool - Min Idle</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Block When Exhausted</key>
+                            <value>
+<name>Pool - Block When Exhausted</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Max Wait Time</key>
+                            <value>
+<name>Pool - Max Wait Time</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Min Evictable Idle Time</key>
+                            <value>
+<name>Pool - Min Evictable Idle Time</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Time Between Eviction Runs</key>
+                            <value>
+<name>Pool - Time Between Eviction Runs</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Num Tests Per Eviction Run</key>
+                            <value>
+<name>Pool - Num Tests Per Eviction Run</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Test On Create</key>
+                            <value>
+<name>Pool - Test On Create</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Test On Borrow</key>
+                            <value>
+<name>Pool - Test On Borrow</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Test On Return</key>
+                            <value>
+<name>Pool - Test On Return</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Test While Idle</key>
+                            <value>
+<name>Pool - Test While Idle</name>
+                            </value>
+                        </entry>
+                    </descriptors>
+                    <name>RedisConnectionPoolService</name>
+                    <persistsState>false</persistsState>
+                    <properties>
+                        <entry>
+                            <key>Redis Mode</key>
+                            <value>Standalone</value>
+                        </entry>
+                        <entry>
+                            <key>Connection String</key>
+                            <value>10.124.62.106:6379</value>
+                        </entry>
+                        <entry>
+                            <key>Database Index</key>
+                            <value>0</value>
+                        </entry>
+                        <entry>
+                            <key>Communication Timeout</key>
+                            <value>10 seconds</value>
+                        </entry>
+                        <entry>
+                            <key>Cluster Max Redirects</key>
+                            <value>5</value>
+                        </entry>
+                        <entry>
+                            <key>Sentinel Master</key>
+                        </entry>
+                        <entry>
+                            <key>Password</key>
+                        </entry>
+                        <entry>
+                            <key>Pool - Max Total</key>
+                            <value>8</value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Max Idle</key>
+                            <value>8</value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Min Idle</key>
+                            <value>0</value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Block When Exhausted</key>
+                            <value>true</value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Max Wait Time</key>
+                            <value>10 seconds</value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Min Evictable Idle Time</key>
+                            <value>60 seconds</value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Time Between Eviction Runs</key>
+                            <value>30 seconds</value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Num Tests Per Eviction Run</key>
+                            <value>-1</value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Test On Create</key>
+                            <value>false</value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Test On Borrow</key>
+                            <value>false</value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Test On Return</key>
+                            <value>false</value>
+                        </entry>
+                        <entry>
+                            <key>Pool - Test While Idle</key>
+                            <value>true</value>
+                        </entry>
+                    </properties>
+                    <state>ENABLED</state>
+                    <type>org.apache.nifi.redis.service.RedisConnectionPoolService</type>
+                </controllerServices>
+                <controllerServices>
+                    <id>687ca940-d5a9-3e7b-0000-000000000000</id>
+                    <parentGroupId>d39fbb33-45cb-3757-0000-000000000000</parentGroupId>
+                    <bundle>
+                        <artifact>nifi-redis-nar</artifact>
+                        <group>org.apache.nifi</group>
+                        <version>1.13.2</version>
+                    </bundle>
+                    <comments></comments>
+                    <descriptors>
+                        <entry>
+                            <key>redis-connection-pool</key>
+                            <value>
+<identifiesControllerService>org.apache.nifi.redis.RedisConnectionPool</identifiesControllerService>
+<name>redis-connection-pool</name>
+                            </value>
+                        </entry>
+                        <entry>
+                            <key>redis-cache-ttl</key>
+                            <value>
+<name>redis-cache-ttl</name>
+                            </value>
+                        </entry>
+                    </descriptors>
+                    <name>RedisDistributedMapCacheClientService</name>
+                    <persistsState>false</persistsState>
+                    <properties>
+                        <entry>
+                            <key>redis-connection-pool</key>
+                            <value>6487b603-8b45-39e2-0000-000000000000</value>
+                        </entry>
+                        <entry>
+                            <key>redis-cache-ttl</key>
+                            <value>0 secs</value>
+                        </entry>
+                    </properties>
+                    <state>ENABLED</state>
+                    <type>org.apache.nifi.redis.service.RedisDistributedMapCacheClientService</type>
+                </controllerServices>
+                <processors>
+                    <id>05ae5010-7f50-3dc9-0000-000000000000</id>
+                    <parentGroupId>d39fbb33-45cb-3757-0000-000000000000</parentGroupId>
+                    <position>
+                        <x>816.0</x>
+                        <y>232.0</y>
+                    </position>
+                    <bundle>
+                        <artifact>nifi-standard-nar</artifact>
+                        <group>org.apache.nifi</group>
+                        <version>1.13.2</version>
+                    </bundle>
+                    <config>
+                        <bulletinLevel>WARN</bulletinLevel>
+                        <comments></comments>
+                        <concurrentlySchedulableTaskCount>1</concurrentlySchedulableTaskCount>
+                        <descriptors>
+                            <entry>
+<key>Cache Entry Identifier</key>
+<value>
+    <name>Cache Entry Identifier</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Distributed Cache Service</key>
+<value>
+    <identifiesControllerService>org.apache.nifi.distributed.cache.client.DistributedMapCacheClient</identifiesControllerService>
+    <name>Distributed Cache Service</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Cache update strategy</key>
+<value>
+    <name>Cache update strategy</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Max cache entry size</key>
+<value>
+    <name>Max cache entry size</name>
+</value>
+                            </entry>
+                        </descriptors>
+                        <executionNode>ALL</executionNode>
+                        <lossTolerant>false</lossTolerant>
+                        <penaltyDuration>30 sec</penaltyDuration>
+                        <properties>
+                            <entry>
+<key>Cache Entry Identifier</key>
+<value>caerus_hdfs_events</value>
+                            </entry>
+                            <entry>
+<key>Distributed Cache Service</key>
+<value>687ca940-d5a9-3e7b-0000-000000000000</value>
+                            </entry>
+                            <entry>
+<key>Cache update strategy</key>
+<value>replace</value>
+                            </entry>
+                            <entry>
+<key>Max cache entry size</key>
+<value>1 MB</value>
+                            </entry>
+                        </properties>
+                        <runDurationMillis>0</runDurationMillis>
+                        <schedulingPeriod>0 sec</schedulingPeriod>
+                        <schedulingStrategy>TIMER_DRIVEN</schedulingStrategy>
+                        <yieldDuration>1 sec</yieldDuration>
+                    </config>
+                    <executionNodeRestricted>false</executionNodeRestricted>
+                    <name>PutDistributedMapCache</name>
+                    <relationships>
+                        <autoTerminate>true</autoTerminate>
+                        <name>failure</name>
+                    </relationships>
+                    <relationships>
+                        <autoTerminate>true</autoTerminate>
+                        <name>success</name>
+                    </relationships>
+                    <state>RUNNING</state>
+                    <style/>
+                    <type>org.apache.nifi.processors.standard.PutDistributedMapCache</type>
+                </processors>
+                <processors>
+                    <id>0c96d190-69cd-3d53-0000-000000000000</id>
+                    <parentGroupId>d39fbb33-45cb-3757-0000-000000000000</parentGroupId>
+                    <position>
+                        <x>1360.0</x>
+                        <y>-144.0</y>
+                    </position>
+                    <bundle>
+                        <artifact>nifi-standard-nar</artifact>
+                        <group>org.apache.nifi</group>
+                        <version>1.13.2</version>
+                    </bundle>
+                    <config>
+                        <bulletinLevel>WARN</bulletinLevel>
+                        <comments></comments>
+                        <concurrentlySchedulableTaskCount>1</concurrentlySchedulableTaskCount>
+                        <descriptors>
+                            <entry>
+<key>FlowFile Success Iterations</key>
+<value>
+    <name>FlowFile Success Iterations</name>
+</value>
+                            </entry>
+                            <entry>
+<key>FlowFile Failure Iterations</key>
+<value>
+    <name>FlowFile Failure Iterations</name>
+</value>
+                            </entry>
+                            <entry>
+<key>FlowFile Rollback Iterations</key>
+<value>
+    <name>FlowFile Rollback Iterations</name>
+</value>
+                            </entry>
+                            <entry>
+<key>FlowFile Rollback Yield Iterations</key>
+<value>
+    <name>FlowFile Rollback Yield Iterations</name>
+</value>
+                            </entry>
+                            <entry>
+<key>FlowFile Rollback Penalty Iterations</key>
+<value>
+    <name>FlowFile Rollback Penalty Iterations</name>
+</value>
+                            </entry>
+                            <entry>
+<key>FlowFile Exception Iterations</key>
+<value>
+    <name>FlowFile Exception Iterations</name>
+</value>
+                            </entry>
+                            <entry>
+<key>FlowFile Exception Class</key>
+<value>
+    <name>FlowFile Exception Class</name>
+</value>
+                            </entry>
+                            <entry>
+<key>No FlowFile Skip Iterations</key>
+<value>
+    <name>No FlowFile Skip Iterations</name>
+</value>
+                            </entry>
+                            <entry>
+<key>No FlowFile Exception Iterations</key>
+<value>
+    <name>No FlowFile Exception Iterations</name>
+</value>
+                            </entry>
+                            <entry>
+<key>No FlowFile Yield Iterations</key>
+<value>
+    <name>No FlowFile Yield Iterations</name>
+</value>
+                            </entry>
+                            <entry>
+<key>No FlowFile Exception Class</key>
+<value>
+    <name>No FlowFile Exception Class</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Write Iterations</key>
+<value>
+    <name>Write Iterations</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Content Size</key>
+<value>
+    <name>Content Size</name>
+</value>
+                            </entry>
+                            <entry>
+<key>@OnScheduled Pause Time</key>
+<value>
+    <name>@OnScheduled Pause Time</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Fail When @OnScheduled called</key>
+<value>
+    <name>Fail When @OnScheduled called</name>
+</value>
+                            </entry>
+                            <entry>
+<key>@OnUnscheduled Pause Time</key>
+<value>
+    <name>@OnUnscheduled Pause Time</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Fail When @OnUnscheduled called</key>
+<value>
+    <name>Fail When @OnUnscheduled called</name>
+</value>
+                            </entry>
+                            <entry>
+<key>@OnStopped Pause Time</key>
+<value>
+    <name>@OnStopped Pause Time</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Fail When @OnStopped called</key>
+<value>
+    <name>Fail When @OnStopped called</name>
+</value>
+                            </entry>
+                            <entry>
+<key>OnTrigger Pause Time</key>
+<value>
+    <name>OnTrigger Pause Time</name>
+</value>
+                            </entry>
+                            <entry>
+<key>CustomValidate Pause Time</key>
+<value>
+    <name>CustomValidate Pause Time</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Ignore Interrupts When Paused</key>
+<value>
+    <name>Ignore Interrupts When Paused</name>
+</value>
+                            </entry>
+                        </descriptors>
+                        <executionNode>ALL</executionNode>
+                        <lossTolerant>false</lossTolerant>
+                        <penaltyDuration>30 sec</penaltyDuration>
+                        <properties>
+                            <entry>
+<key>FlowFile Success Iterations</key>
+<value>1</value>
+                            </entry>
+                            <entry>
+<key>FlowFile Failure Iterations</key>
+<value>0</value>
+                            </entry>
+                            <entry>
+<key>FlowFile Rollback Iterations</key>
+<value>0</value>
+                            </entry>
+                            <entry>
+<key>FlowFile Rollback Yield Iterations</key>
+<value>0</value>
+                            </entry>
+                            <entry>
+<key>FlowFile Rollback Penalty Iterations</key>
+<value>0</value>
+                            </entry>
+                            <entry>
+<key>FlowFile Exception Iterations</key>
+<value>0</value>
+                            </entry>
+                            <entry>
+<key>FlowFile Exception Class</key>
+<value>java.lang.RuntimeException</value>
+                            </entry>
+                            <entry>
+<key>No FlowFile Skip Iterations</key>
+<value>1</value>
+                            </entry>
+                            <entry>
+<key>No FlowFile Exception Iterations</key>
+<value>0</value>
+                            </entry>
+                            <entry>
+<key>No FlowFile Yield Iterations</key>
+<value>0</value>
+                            </entry>
+                            <entry>
+<key>No FlowFile Exception Class</key>
+<value>java.lang.RuntimeException</value>
+                            </entry>
+                            <entry>
+<key>Write Iterations</key>
+<value>0</value>
+                            </entry>
+                            <entry>
+<key>Content Size</key>
+<value>1 KB</value>
+                            </entry>
+                            <entry>
+<key>@OnScheduled Pause Time</key>
+<value>0 sec</value>
+                            </entry>
+                            <entry>
+<key>Fail When @OnScheduled called</key>
+<value>false</value>
+                            </entry>
+                            <entry>
+<key>@OnUnscheduled Pause Time</key>
+<value>0 sec</value>
+                            </entry>
+                            <entry>
+<key>Fail When @OnUnscheduled called</key>
+<value>false</value>
+                            </entry>
+                            <entry>
+<key>@OnStopped Pause Time</key>
+<value>0 sec</value>
+                            </entry>
+                            <entry>
+<key>Fail When @OnStopped called</key>
+<value>false</value>
+                            </entry>
+                            <entry>
+<key>OnTrigger Pause Time</key>
+<value>0 sec</value>
+                            </entry>
+                            <entry>
+<key>CustomValidate Pause Time</key>
+<value>0 sec</value>
+                            </entry>
+                            <entry>
+<key>Ignore Interrupts When Paused</key>
+<value>false</value>
+                            </entry>
+                        </properties>
+                        <runDurationMillis>0</runDurationMillis>
+                        <schedulingPeriod>0 sec</schedulingPeriod>
+                        <schedulingStrategy>TIMER_DRIVEN</schedulingStrategy>
+                        <yieldDuration>1 sec</yieldDuration>
+                    </config>
+                    <executionNodeRestricted>false</executionNodeRestricted>
+                    <name>DebugFlow</name>
+                    <relationships>
+                        <autoTerminate>true</autoTerminate>
+                        <name>failure</name>
+                    </relationships>
+                    <relationships>
+                        <autoTerminate>true</autoTerminate>
+                        <name>success</name>
+                    </relationships>
+                    <state>STOPPED</state>
+                    <style/>
+                    <type>org.apache.nifi.processors.standard.DebugFlow</type>
+                </processors>
+                <processors>
+                    <id>ef6373ae-914e-31ec-0000-000000000000</id>
+                    <parentGroupId>d39fbb33-45cb-3757-0000-000000000000</parentGroupId>
+                    <position>
+                        <x>824.0</x>
+                        <y>-104.0</y>
+                    </position>
+                    <bundle>
+                        <artifact>nifi-hadoop-nar</artifact>
+                        <group>org.apache.nifi</group>
+                        <version>1.13.2</version>
+                    </bundle>
+                    <config>
+                        <bulletinLevel>WARN</bulletinLevel>
+                        <comments></comments>
+                        <concurrentlySchedulableTaskCount>1</concurrentlySchedulableTaskCount>
+                        <descriptors>
+                            <entry>
+<key>Hadoop Configuration Resources</key>
+<value>
+    <name>Hadoop Configuration Resources</name>
+</value>
+                            </entry>
+                            <entry>
+<key>kerberos-credentials-service</key>
+<value>
+    <identifiesControllerService>org.apache.nifi.kerberos.KerberosCredentialsService</identifiesControllerService>
+    <name>kerberos-credentials-service</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Kerberos Principal</key>
+<value>
+    <name>Kerberos Principal</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Kerberos Keytab</key>
+<value>
+    <name>Kerberos Keytab</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Kerberos Password</key>
+<value>
+    <name>Kerberos Password</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Kerberos Relogin Period</key>
+<value>
+    <name>Kerberos Relogin Period</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Additional Classpath Resources</key>
+<value>
+    <name>Additional Classpath Resources</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Poll Duration</key>
+<value>
+    <name>Poll Duration</name>
+</value>
+                            </entry>
+                            <entry>
+<key>HDFS Path to Watch</key>
+<value>
+    <name>HDFS Path to Watch</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Ignore Hidden Files</key>
+<value>
+    <name>Ignore Hidden Files</name>
+</value>
+                            </entry>
+                            <entry>
+<key>Event Types to Filter On</key>
+<value>
+    <name>Event Types to Filter On</name>
+</value>
+                            </entry>
+                            <entry>
+<key>IOException Retries During Event Polling</key>
+<value>
+    <name>IOException Retries During Event Polling</name>
+</value>
+                            </entry>
+                        </descriptors>
+                        <executionNode>ALL</executionNode>
+                        <lossTolerant>false</lossTolerant>
+                        <penaltyDuration>30 sec</penaltyDuration>
+                        <properties>
+                            <entry>
+<key>Hadoop Configuration Resources</key>
+<value>/opt/nifi/nifi-current/hdfs-site.xml, /opt/nifi/nifi-current/core-site.xml</value>
+                            </entry>
+                            <entry>
+<key>kerberos-credentials-service</key>
+                            </entry>
+                            <entry>
+<key>Kerberos Principal</key>
+                            </entry>
+                            <entry>
+<key>Kerberos Keytab</key>
+                            </entry>
+                            <entry>
+<key>Kerberos Password</key>
+                            </entry>
+                            <entry>
+<key>Kerberos Relogin Period</key>
+<value>4 hours</value>
+                            </entry>
+                            <entry>
+<key>Additional Classpath Resources</key>
+                            </entry>
+                            <entry>
+<key>Poll Duration</key>
+<value>2 second</value>
+                            </entry>
+                            <entry>
+<key>HDFS Path to Watch</key>
+<value>/input/.*</value>
+                            </entry>
+                            <entry>
+<key>Ignore Hidden Files</key>
+<value>false</value>
+                            </entry>
+                            <entry>
+<key>Event Types to Filter On</key>
+<value>append, close, create, metadata, rename, unlink</value>
+                            </entry>
+                            <entry>
+<key>IOException Retries During Event Polling</key>
+<value>3</value>
+                            </entry>
+                        </properties>
+                        <runDurationMillis>0</runDurationMillis>
+                        <schedulingPeriod>1 sec</schedulingPeriod>
+                        <schedulingStrategy>TIMER_DRIVEN</schedulingStrategy>
+                        <yieldDuration>1 sec</yieldDuration>
+                    </config>
+                    <executionNodeRestricted>false</executionNodeRestricted>
+                    <name>GetHDFSEvents</name>
+                    <relationships>
+                        <autoTerminate>false</autoTerminate>
+                        <name>success</name>
+                    </relationships>
+                    <state>RUNNING</state>
+                    <style/>
+                    <type>org.apache.nifi.processors.hadoop.inotify.GetHDFSEvents</type>
+                </processors>
+            </contents>
+            <flowfileConcurrency>UNBOUNDED</flowfileConcurrency>
+            <flowfileOutboundPolicy>STREAM_WHEN_AVAILABLE</flowfileOutboundPolicy>
+            <name>a</name>
+            <variables/>
+        </processGroups>
+    </snippet>
+    <timestamp>06/15/2021 13:44:26 UTC</timestamp>
+</template>
