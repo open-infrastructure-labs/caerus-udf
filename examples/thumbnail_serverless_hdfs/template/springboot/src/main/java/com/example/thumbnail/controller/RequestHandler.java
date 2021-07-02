@@ -46,7 +46,7 @@ public class RequestHandler {
     static final String tmpSourceDir = "/tmp/";
 
     //private static String DEFAULT_HOST = "localhost";
-    private static String DEFAULT_HOST = "192.168.1.10";
+    private static String DEFAULT_HOST = "192.168.1.11";
     private static int DEFAULT_WEBHDFS_PORT = 9870;
     private static String METHOD_TYPE_GET = "GET";
     private static String METHOD_TYPE_PUT = "PUT";

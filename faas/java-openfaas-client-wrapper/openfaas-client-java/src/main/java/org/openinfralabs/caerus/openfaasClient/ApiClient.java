@@ -56,7 +56,7 @@ public class ApiClient {
     // TODO: A temp solution here. Below 4 parameters should be read from env or files. FIXME later
     private String basePath = "http://127.0.0.1:8080";
     private String username = "admin";
-    private String password = "0a5acc2d9f34bd4183fe20373867dd631704ad26";
+    private String password = "d76d10d661d4f6bf926ca1f683117511450fdd33";
     private boolean debugging = false;
 
 
