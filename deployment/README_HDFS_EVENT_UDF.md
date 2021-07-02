@@ -12,10 +12,10 @@ We have two options to use this HDFS feature:
 Due to time constrain, and this part is not the core function of NDP/UDF support, it has been decided to use option #1.
 
 Nifi is a widely used data pipeline framework that consists of many community-developed processors, two Nifi processors can be hooked up to accomplish this feature to HDFS, to be equivalent to object storage.
-1. ![GetHDFSEvents](https://nifi.apache.org/docs/nifi-docs/components/nifi-docs/components/org.apache.nifi/nifi-hadoop-nar/1.9.0/org.apache.nifi.processors.hadoop.inotify.GetHDFSEvents/index.html)
-2. ![PutDistributedMapCache](https://nifi.apache.org/docs/nifi-docs/components/org.apache.nifi/nifi-standard-nar/1.5.0/org.apache.nifi.processors.standard.PutDistributedMapCache/)
+1. [GetHDFSEvents](https://nifi.apache.org/docs/nifi-docs/components/nifi-docs/components/org.apache.nifi/nifi-hadoop-nar/1.9.0/org.apache.nifi.processors.hadoop.inotify.GetHDFSEvents/index.html)
+2. [PutDistributedMapCache](https://nifi.apache.org/docs/nifi-docs/components/org.apache.nifi/nifi-standard-nar/1.5.0/org.apache.nifi.processors.standard.PutDistributedMapCache/)
 
-In the example, everytime a new file is uploaded (via any HDFS client) to a pre-registered HDFS folder, the Nifi will send notification to Redis, and Caerus UDF Event Service will receive notification, a Caerus serverless UDF will be auto invoked, and the result is written back to another HDFS folder.
+In the example, everytime a new file is uploaded (via any HDFS client) to a pre-registered HDFS folder, the Nifi will send notification to Redis, and Caerus UDF Event Listener Service will receive notification, a Caerus serverless UDF will be auto invoked, and the result is written back to another HDFS folder.
  
 # Getting Started
 The steps below show how to enable this feature:
@@ -27,7 +27,7 @@ Follow the below link: [HDFS](../ndpService)
 ## Step 2: Deploy Redis docker cluster and set event notification
 - To deploy Redis, follow the below link: [registry](../registry)
 - run following command using redis cli
-```aidl
+```shell
 
 root@ubuntu1804:/opt/hadoop-2.8.2# redis-cli -h localhost -a my_password
 Warning: Using a password with '-a' or '-u' option on the command line interface may not be safe.
@@ -40,13 +40,13 @@ localhost:6379> CONFIG get notify-keyspace-events
 
 ## Step 3: Deploy Nifi docker
 Start docker compose, Nifi GUI can be access via port 8091: http://localhost:8091/nifi/:
-```aidl
+```shell
 > cd nifi
 > docker-compose up -d
 ```
 
 After docker is up, run following commands (these can be automated later):
-```aidl
+```shell
 root@ubuntu1804:/home/ubuntu/openinfralabs/caerus-udf/deployment/nifi# docker cp config/core-site.xml nifi2:/opt/nifi/nifi-current
 root@ubuntu1804:/home/ubuntu/openinfralabs/caerus-udf/deployment/nifi# docker cp config/hdfs-site.xml nifi2:/opt/nifi/nifi-current
 docker network connect docker-hadoop_default nifi2
