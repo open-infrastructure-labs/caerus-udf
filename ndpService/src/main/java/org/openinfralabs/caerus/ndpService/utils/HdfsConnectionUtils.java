@@ -18,7 +18,7 @@ import java.util.Optional;
 public final class HdfsConnectionUtils {
 
     // The default host to connect to
-    public static final String DEFAULT_HOST = "localhost";
+    public static final String DEFAULT_HOST = "datanode";
 
     // The default port
     public static final String DEFAULT_PORT = "9870";
@@ -107,7 +107,7 @@ public final class HdfsConnectionUtils {
 
     public HttpURLConnection getConnection(String webHdfsUrlSuffix, String methodType) throws IOException {
 
-        String httpsURL = DEFAULT_PROTOCOL + host + ":" + port + webHdfsUrlSuffix;
+        String httpsURL = DEFAULT_PROTOCOL + DEFAULT_HOST + ":" + port + webHdfsUrlSuffix;
         String userpass = username + ":" + password;
 
         String basicAuth = "Basic " + new String(Base64.getEncoder().encode(userpass.getBytes()));

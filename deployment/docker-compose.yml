@@ -5,9 +5,6 @@ services:
     build:
       context: ../
       dockerfile: deployment/dockers/backenddocker/Dockerfile
-      args:
-        - GITUSERNAME=ywang529
-        - GITPASSOWRD=cb8fb.Com
     restart: always
     environment:
       - CAERUS_REDIS_HOSTNAME=localhost

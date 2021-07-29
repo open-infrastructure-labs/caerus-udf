@@ -1,0 +1,118 @@
+version: '3.6'
+services:
+  caerus-ndp-udf-backend:
+    #network_mode: "host"
+    build:
+      context: ../
+      dockerfile: deployment/dockers/backenddocker/Dockerfile
+    restart: always
+    environment:
+      - CAERUS_REDIS_HOSTNAME=caerus-redis-primary
+      - OPENFAAS_USERNAME=admin
+      - OPENFAAS_PASSWORD=${OPENFAAS_ADMIN_PASS}
+      - OPENFAAS_BASEPATH=http://172.17.0.1:8080
+      - MINIO_URL=http://localhost:9000
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+      - "8003:8003"
+      - "8004:8004"
+    depends_on:
+      - caerus-redis-primary
+
+  caerus-redis-primary:
+    #network_mode: "host"
+    image: 'docker.io/bitnami/redis:6.0-debian-10'
+    ports:
+      - "6379:6379"
+    restart: always
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_PASSWORD=my_password
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    volumes:
+      - '/data/redis-data:/bitnami/redis/data'
+
+  nifi:
+    build:
+      context: ../
+      dockerfile: deployment/nifi/Dockerfile
+    ports:
+      - "8091:8080" # Unsecured HTTP Web Port
+    #network_mode: "host"
+    #hostname: localhost
+    restart: always
+    volumes:
+      - '/data/nifi:/opt/nifi/nifi-current/ls-target'
+
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    #network_mode: "host"
+    restart: always
+    ports:
+      - 9870:9870
+      - 9000:9000
+    volumes:
+      - hadoop_namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=test
+    env_file:
+      - ./hadoop.env
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    #network_mode: "host"
+    container_name: datanode
+    restart: always
+    hostname: localhost
+    ports:
+      - 9864:9864
+    volumes:
+      - hadoop_datanode:/hadoop/dfs/data
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870"
+    env_file:
+      - ./hadoop.env
+
+  resourcemanager:
+    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
+    #network_mode: "host"
+    container_name: resourcemanager
+    restart: always
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864"
+    env_file:
+      - ./hadoop.env
+
+  nodemanager1:
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    #network_mode: "host"
+    container_name: nodemanager
+    restart: always
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088"
+    env_file:
+      - ./hadoop.env
+
+  historyserver:
+    image: bde2020/hadoop-historyserver:2.0.0-hadoop3.2.1-java8
+    #network_mode: "host"
+    container_name: historyserver
+    restart: always
+    environment:
+      SERVICE_PRECONDITION: "namenode:9000 namenode:9870 datanode:9864 resourcemanager:8088"
+    volumes:
+      - hadoop_historyserver:/hadoop/yarn/timeline
+    env_file:
+      - ./hadoop.env
+
+volumes:
+  hadoop_namenode:
+  hadoop_datanode:
+  hadoop_historyserver:
+
+
+
+

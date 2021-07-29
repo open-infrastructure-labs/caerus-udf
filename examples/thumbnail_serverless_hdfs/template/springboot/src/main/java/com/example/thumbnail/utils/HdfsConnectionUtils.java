@@ -21,7 +21,7 @@ public final class HdfsConnectionUtils {
 
     // The default host to connect to
     //public static final String DEFAULT_HOST = "localhost";
-    public static final String DEFAULT_HOST = "192.168.1.11";
+    public static final String DEFAULT_HOST = "192.168.1.8";
 
     // The default port
     public static final String DEFAULT_PORT = "89870";

@@ -49,7 +49,7 @@ public class HDFSStorageController {
         if (protocol.compareToIgnoreCase("HTTP/1.1") == 0) {
             useChunking = true;
         }*/
-
+        System.out.println("\n-------- hdfsUploadFile --- ");
         InputStream requestInputStream = request.getInputStream();
         // we will probably have to cache because of the chunking
         byte[] cachedBody = StreamUtils.copyToByteArray(requestInputStream);
