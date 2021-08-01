@@ -7,6 +7,9 @@ functions:
     lang: springboot
     handler: ./caerus-faas-spring-thumbnail-hdfs
     image: ywang529/caerus-faas-spring-thumbnail-hdfs:latest
+    environment:
+      HDFS_HOST: "10.124.62.116"
+      WEBHDFS_NAME_NODE_PORT: "9870"
     annotations:
       invocation_event_types: "[put, copy]"
    

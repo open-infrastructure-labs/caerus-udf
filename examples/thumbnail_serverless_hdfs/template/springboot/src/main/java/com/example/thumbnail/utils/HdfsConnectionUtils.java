@@ -83,8 +83,8 @@ public final class HdfsConnectionUtils {
 
     public static final AuthenticationType DEFAULT_AUTHENTICATION_TYPE = AuthenticationType.SIMPLE;
 
-    private String host = DEFAULT_HOST;
-    private String port = DEFAULT_PORT;
+    private String host = Optional.ofNullable(System.getenv("HDFS_HOST")).orElse(DEFAULT_HOST);
+    private String port = Optional.ofNullable(System.getenv("WEBHDFS_NAME_NODE_PORT")).orElse(DEFAULT_PORT);
     private String username = DEFAULT_USERNAME;
     private String password = DEFAULT_PASSWORD;
     private AuthenticationType authenticationType = DEFAULT_AUTHENTICATION_TYPE;
