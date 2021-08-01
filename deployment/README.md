@@ -22,6 +22,9 @@ The steps below show how to use this deployment automation:
 ## Step 2: Set up OPENFAAS and deploy needed serverless functions (e.g. thumbnail function)
 Follow the below link: [faas](../faas)
 
+Note: You might need to change the storage system IP address that is stored in serverless function configuration file, such as:
+[caerus-faas-spring-thumbnail-hdfs.yml](../examples/thumbnail_serverless_hdfs/caerus-faas-spring-thumbnail-hdfs.yml)
+
 ## Step 3: Create environmental variable for OPENFAAS secret
 ```
 root@ubuntu1804:/home/ubuntu/caerus-udf/deployment# chmod +x create_secrets.sh 
