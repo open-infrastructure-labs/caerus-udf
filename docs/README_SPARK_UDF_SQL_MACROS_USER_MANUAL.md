@@ -54,7 +54,7 @@ Type :help for more information.
 
 scala> import org.apache.spark.sql.types._
 scala> val schema = new StructType().add("name", StringType, true).add("age", IntegerType, true)
-scala> val df_with_schema = spark.read.schema(schema).json("/data/source/people.json")
+scala> val df_with_schema = spark.read.schema(schema).json("file:///data/source/people.json")
 scala> df_with_schema.printSchema()
 scala> df_with_schema.show(false)
 scala> df_with_schema.createOrReplaceTempView("people_with_schema")
