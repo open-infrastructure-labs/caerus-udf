@@ -1,0 +1,4 @@
+[submodule "caerus-spark-udf-compiler-from-rapids"]
+	path = caerus-spark-udf-compiler-from-rapids
+	url = https://github.com/open-infrastructure-labs/caerus-spark-udf-compiler-from-rapids
+	branch = brnach-21.10
