@@ -1,7 +1,7 @@
 # Caerus Spark UDF Compiler - Auto Spark UDF Pushdown
 
 ## Introduction
-[Caerus UDF Compiler](https://github.com/open-infrastructure-labs/caerus-spark-udf-compiler-from-rapids) is modified from a plugin of [udf-compiler](https://github.com/NVIDIA/spark-rapids/tree/branch-21.10/udf-compiler) of [Nvidia RAPIDS Accelerator For Apache Saprk](https://github.com/NVIDIA/spark-rapids). 
+[Caerus UDF Compiler](https://github.com/open-infrastructure-labs/caerus-spark-udf-compiler-from-rapids) is modified from a plugin called [udf-compiler](https://github.com/NVIDIA/spark-rapids/tree/branch-21.10/udf-compiler) of [Nvidia RAPIDS Accelerator For Apache Saprk](https://github.com/NVIDIA/spark-rapids). 
 
 It is a UDF compiler extension (via Spark rule injection) to attempt for auto translation of Spark UDFs bytecode into Spark Catalyst expressions, so that it can take advantage of Catalyst optimization including codegen, predict pushdown etc. for better UDF performance. 
 
