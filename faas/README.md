@@ -3,7 +3,7 @@ Caerus UDF supports FaaS build, deploy, and envocation. It currently uses Openfa
 https://www.openfaas.com/
 
 # Getting Started - Setup Openfaas Framework (Using Public Docker Hub As Function Repository)
-Note: Fowllowing steps are to setup kubenetes cluster of openfaas, where step 1-7 are pre-requirements, and step 8-12 are steps for the framework deployment  
+Note: Following steps are to set up kubernetes cluster of openfaas, where step 1-7 are pre-requirements, and step 8-12 are steps for the framework deployment  
 1. Install make :
 ```
 > apt update
