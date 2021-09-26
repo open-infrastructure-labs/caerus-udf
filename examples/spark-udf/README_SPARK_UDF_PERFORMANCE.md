@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Spark Native UDF is forced to run in a black box (opaque) on compute-side, and Spark Catalyst by design can't optimize (codegen, predict pushdown etc.) UDF. Thus Spark UDFs are often performance bottlenecks.
+Spark native UDF is forced to run in a black box (opaque) on compute-side, and Spark Catalyst by design can't optimize (codegen, predict pushdown etc.) UDF. Thus Spark UDFs are often performance bottlenecks.
 
 To solve the performance problems of the Spark UDFs, especially in the context of UDF pushdown for NDP, we think there are two fundamental approaches:
 1. **Partial UDF Pushdown – Translatable UDF**: take full advantage of Spark Catalyst expressions, the UDF can somehow be translated into native expressions, so they can be automatically optimized by the Catalyst.
