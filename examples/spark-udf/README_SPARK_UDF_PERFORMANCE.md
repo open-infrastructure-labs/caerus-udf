@@ -23,8 +23,8 @@ Since all above solutions attempt to translate opaque UDFs into Spark expression
     - WholeStageCodegen: optimization in serialization/de-serialization
     - Null optimization
     - Other Catalyst optimizations
-    - 
-For Translatable UDF, since all above solutions need a lot additional work (see above restrictions/functional gaps of each solution) to have full production-level support, it is difficult to identify test benchmark for performance measurement.
+    
+For translatable UDF, since all above solutions need a lot additional work (see above restrictions/functional gaps of each solution) to have full production-level support, it is difficult to identify test benchmark for performance measurement.
 
 For example, udf-compiler doesn't support string equal sign "=" comparison yet, so any existing customers' UDFs that contain such string comparison will either fall back to native Spark UDF calculation (note: currently there is a defect that any exception will fail the entire UDF in UDF-compiler), or need to be rewritten to use supported expression (String.equal() function is supported).
 
