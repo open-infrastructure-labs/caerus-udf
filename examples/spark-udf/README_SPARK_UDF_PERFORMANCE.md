@@ -5,10 +5,11 @@
 Spark Native UDF is forced to run in a black box (opaque) on compute-side, and Spark Catalyst by design can't optimize (codegen, predict pushdown etc.) UDF. Thus Spark UDFs are often performance bottlenecks.
 
 To solve the performance problems of the Spark UDFs, especially in the context of UDF pushdown for NDP, we think there are two fundamental approaches:
-1. **Partial UDF Pushdown** – Translatable UDF: take full advantage of Spark Catalyst expressions, the UDF can somehow be translated into native expressions, so they can be automatically optimized by the Catalyst.
+1. **Partial UDF Pushdown – Translatable UDF**: take full advantage of Spark Catalyst expressions, the UDF can somehow be translated into native expressions, so they can be automatically optimized by the Catalyst.
 2. **Whole UDF Pushdown**: For cases like data intensive operations like ETL and ML/DL etc. They cannot, and cannot easily, be translated into expressions, a generic mechanism should be provided to allow UDF to be pushed down to storage, so that it can take advantage of NDP. But such UDFs should be used carefully, especially in SQL UDFs, to make sure it doesn’t not interfere the Spark SQL optimization.
 
-**Partial UDF Pushdown** - Translatable UDF
+**Partial UDF Pushdown - Translatable UDF**
+
 Even when most of UDFs used in Spark SQL contain the contents, such as math operations, string manipulation, date and time, and relational operations etc. that can be translated into Spark Catalyst expression, but because UDFs are run in an opaque box, such contents inside the UDF cannot be detected.
 
 There are several open-source solutions that we can get inspiration from:
@@ -66,18 +67,18 @@ root@ubuntu1804:/home/ubuntu/openinfralabs/caerus-udf/examples/spark-udf#
 ```
 #### Step 3: set up compute and storage clusters
 In our experiment, we set up:
-- a compute cluster to include 3 Spark VMs nodes (one master and two workers) on one server, 
-- another storage cluster to include 3 HDFS VMs nodes (one name node that has yarn, two data nodes).
+- a compute cluster to include 3 Spark VMs nodes (one master and two workers) on one server
+- a storage cluster to include 3 HDFS VMs nodes (one name node that has yarn, two data nodes) on another server
 - implemented the data generation tool (modified from the SQL Macros) to solve the Spark OOM issues etc. 
 - the data generation tool can generate any scale factors as needed, the data sizes are as follows:
-```
-root@yong1:~#  hdfs dfs -du -s -h /testData10MRecords.parquet
-42.9 M  /testData10MRecords.parquet
-root@yong1:~#  hdfs dfs -du -s -h /testData100MRecords.parquet
-428.8 M  /testData100MRecords.parquet
-root@yong1:~# hdfs dfs -du -s -h /testData1BRecords.parquet
-4.2 G  /testData1BRecords.parquet
-```
+    ```
+    root@yong1:~#  hdfs dfs -du -s -h /testData10MRecords.parquet
+    42.9 M  /testData10MRecords.parquet
+    root@yong1:~#  hdfs dfs -du -s -h /testData100MRecords.parquet
+    428.8 M  /testData100MRecords.parquet
+    root@yong1:~# hdfs dfs -du -s -h /testData1BRecords.parquet
+    4.2 G  /testData1BRecords.parquet
+    ```
 Run the following command on a Spark node (e.g. master) to generate data:
 ```
 spark-submit --class org.openinfralabs.caerus.examples.DataGen --master spark://10.124.48.60:70770 spark-udf-1.0-SNAPSHOT.jar
@@ -85,7 +86,7 @@ spark-submit --class org.openinfralabs.caerus.examples.DataGen --master spark://
 ### Steps to run the performance tests
 #### Step 1-2: same as above
 #### Step 3: run before-after and take the spark time from the log 
-Before: Spark native UDF:
+**Before**: Spark native UDF:
 ```
 root@master:~/caerus-udf/examples/spark-udf# spark-submit --class org.openinfralabs.caerus.examples.SubmitExampleTaxDiscountUDF --master spark://10.124.48.60:7077 --driver-memory 5g target/spark-udf-1.0-SNAPSHOT.jar
 ........
@@ -116,7 +117,7 @@ Project [prod#0, if (isnull(amt#2)) null else taxAndDiscountF(prod#0, knownnotnu
    +- *(1) ColumnarToRow
       +- FileScan parquet [prod#0,amt#2] Batched: true, DataFilters: [(if (isnull(amt#2)) null else taxAndDiscountF(prod#0, knownnotnull(amt#2)) > 50.0)], Format: Parquet, Location: InMemoryFileIndex[hdfs://10.124.48.67:9000/testData10MRecords.parquet], PartitionFilters: [], PushedFilters: [], ReadSchema: struct<prod:string,amt:double>
 ```
-After: use compiler-udf for translation, you should see the time improvement (not include storage pushdown yet)
+**After**: use compiler-udf for translation, you should see the time improvement (not include storage pushdown yet)
 ```
 root@master:~/caerus-udf/examples/spark-udf# spark-submit --class org.openinfralabs.caerus.examples.SubmitExampleTaxDiscountUDF --master spark://10.124.48.60:7077 --driver-memory 5g --driver-class-path /root/caerus-spark-udf-compiler-from-rapids/udf-compiler/target/rapids-4-spark-udf_2.12-21.10.0-SNAPSHOT.jar --conf "spark.sql.extensions"="com.nvidia.spark.udf.Plugin" target/spark-udf-1.0-SNAPSHOT.jar
 
@@ -150,8 +151,8 @@ Project [prod#0, ((amt#2 * (1.0 - if (NOT (cast((prod#0 <=> alcohol) as int) = 0
 ### Preliminary results
 - 10 million records (parquet file with 42M data size on HDFS) were used for performance measurement as an example
 - Measurement:
-  - Before (Spark native UDF): 3 repeat measurements in ms: 9314, 9593, 9738 average 9548
-  - After (udf-compiler): 3 repeat measurements in ms: 5692, 5942, 5516 average 5716
-  - Improvement of UDF translation: 167%
+  - **Before** (Spark native UDF): 3 repeat measurements in ms: 9314, 9593, 9738 **average 9548**
+  - **After** (udf-compiler): 3 repeat measurements in ms: 5692, 5942, 5516 **average 5716**
+  - **Improvement of UDF translation: 167%**
 - NDP pushdown is not tested yet, will work on the datasource and storage next
  
