@@ -117,7 +117,7 @@ Project [prod#0, if (isnull(amt#2)) null else taxAndDiscountF(prod#0, knownnotnu
    +- *(1) ColumnarToRow
       +- FileScan parquet [prod#0,amt#2] Batched: true, DataFilters: [(if (isnull(amt#2)) null else taxAndDiscountF(prod#0, knownnotnull(amt#2)) > 50.0)], Format: Parquet, Location: InMemoryFileIndex[hdfs://10.124.48.67:9000/testData10MRecords.parquet], PartitionFilters: [], PushedFilters: [], ReadSchema: struct<prod:string,amt:double>
 ```
-**After - compiler-udf for auto translation**
+**After - udf-compiler for auto translation**
 ```
 root@master:~/caerus-udf/examples/spark-udf# spark-submit --class org.openinfralabs.caerus.examples.SubmitExampleTaxDiscountUDF --master spark://10.124.48.60:7077 --driver-memory 5g --driver-class-path /root/caerus-spark-udf-compiler-from-rapids/udf-compiler/target/rapids-4-spark-udf_2.12-21.10.0-SNAPSHOT.jar --conf "spark.sql.extensions"="com.nvidia.spark.udf.Plugin" target/spark-udf-1.0-SNAPSHOT.jar
 
