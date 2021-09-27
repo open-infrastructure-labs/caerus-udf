@@ -1,4 +1,4 @@
-# Caerus Spark Performance
+# Caerus Spark UDF Performance
 
 ## Introduction
 
@@ -30,12 +30,12 @@ For example, udf-compiler doesn't support string equal sign "=" comparison yet, 
 
 For Spark UDF performance measurement, it can be divided into two categories:
   - “standard” benchmarks – especially from tpc series
-    - tpcx-bb: UDFs are clearly defined and separated, and normally take 1/3 of the total query (total 30 queries) time. However,
+    - [tpcx-bb](http://tpc.org/tpcx-bb/default5.asp): UDFs are clearly defined and separated, and normally take 1/3 of the total query (total 30 queries) time. However,
       - It has strong dependency on Cloudera products
       - It has many assumptions like Spark worker nodes coexist with storage HDFS data nodes (Spark and storage use the same yarn for control etc.), this might limit our NDP measurement
       - The UDFs in current form are not translatable by the ufd-compiler
       - It is still valuable in future test
-    - tpch: it has some UDFs, but they are optional, e.g. [Databricks’s queries replace all UDFs with expressions](https://github.com/databricks/spark-sql-perf), we need explore more in the future.
+    - [tpch](http://tpc.org/tpch/default5.asp): it has some UDFs, but they are optional, e.g. [Databricks’s queries replace all UDFs with expressions](https://github.com/databricks/spark-sql-perf), we need explore more in the future.
   - “custom” benchmarks – based on real custom use cases, for example,
     - [SQL Macros tax and discount calculation with retails](https://github.com/hbutani/spark-sql-macros#larger-exampletaxrate-calculation)
     - [Facebook hive UDFs migration](https://www.youtube.com/watch?v=wnZlLRMsNDY)
@@ -69,7 +69,7 @@ root@ubuntu1804:/home/ubuntu/openinfralabs/caerus-udf/examples/spark-udf#
 In our experiment, we set up:
 - a compute cluster to include 3 Spark VMs nodes (one master and two workers) on one server
 - a storage cluster to include 3 HDFS VMs nodes (one name node that has yarn, two data nodes) on another server
-- implemented the data generation tool (modified from the SQL Macros) to solve the Spark OOM issues etc. 
+- the data generation tool (modified from the SQL Macros) to solve the Spark OOM issues etc. 
 - the data generation tool can generate any scale factors as needed, the data sizes are as follows:
     ```
     root@yong1:~#  hdfs dfs -du -s -h /testData10MRecords.parquet
@@ -81,12 +81,12 @@ In our experiment, we set up:
     ```
 Run the following command on a Spark node (e.g. master) to generate data:
 ```
-spark-submit --class org.openinfralabs.caerus.examples.DataGen --master spark://10.124.48.60:70770 spark-udf-1.0-SNAPSHOT.jar
+spark-submit --class org.openinfralabs.caerus.examples.DataGen --master spark://10.124.48.60:7077 spark-udf-1.0-SNAPSHOT.jar
 ```
 ### Steps to run the performance tests
 #### Step 1-2: same as above
 #### Step 3: run before-after and take the spark time from the log 
-**Before**: Spark native UDF:
+**Before - Spark native UDF**
 ```
 root@master:~/caerus-udf/examples/spark-udf# spark-submit --class org.openinfralabs.caerus.examples.SubmitExampleTaxDiscountUDF --master spark://10.124.48.60:7077 --driver-memory 5g target/spark-udf-1.0-SNAPSHOT.jar
 ........
@@ -117,7 +117,7 @@ Project [prod#0, if (isnull(amt#2)) null else taxAndDiscountF(prod#0, knownnotnu
    +- *(1) ColumnarToRow
       +- FileScan parquet [prod#0,amt#2] Batched: true, DataFilters: [(if (isnull(amt#2)) null else taxAndDiscountF(prod#0, knownnotnull(amt#2)) > 50.0)], Format: Parquet, Location: InMemoryFileIndex[hdfs://10.124.48.67:9000/testData10MRecords.parquet], PartitionFilters: [], PushedFilters: [], ReadSchema: struct<prod:string,amt:double>
 ```
-**After**: use compiler-udf for translation, you should see the time improvement (not include storage pushdown yet)
+**After - compiler-udf for auto translation**
 ```
 root@master:~/caerus-udf/examples/spark-udf# spark-submit --class org.openinfralabs.caerus.examples.SubmitExampleTaxDiscountUDF --master spark://10.124.48.60:7077 --driver-memory 5g --driver-class-path /root/caerus-spark-udf-compiler-from-rapids/udf-compiler/target/rapids-4-spark-udf_2.12-21.10.0-SNAPSHOT.jar --conf "spark.sql.extensions"="com.nvidia.spark.udf.Plugin" target/spark-udf-1.0-SNAPSHOT.jar
 
@@ -154,5 +154,6 @@ Project [prod#0, ((amt#2 * (1.0 - if (NOT (cast((prod#0 <=> alcohol) as int) = 0
   - **Before** (Spark native UDF): 3 repeat measurements in ms: 9314, 9593, 9738 **average 9548**
   - **After** (udf-compiler): 3 repeat measurements in ms: 5692, 5942, 5516 **average 5716**
   - **Improvement of UDF translation: 167%**
-- NDP pushdown is not tested yet, will work on the datasource and storage next
- 
+- ***NDP pushdown is not tested yet, will work on the datasource and storage next***
+- ***Larger dataset, 100m and 1b records etc., cause Spark to throw OOM exception, need further investigation on Spark settings and/or cluster setup*** 
+- ***Continue to identify other datasets/queries for Spark UDF translation***  
