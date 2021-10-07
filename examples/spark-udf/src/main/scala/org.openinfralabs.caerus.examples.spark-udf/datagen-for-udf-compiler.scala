@@ -25,9 +25,9 @@ object DataGen {
 
     // do data merge, or it will have OOM
     // TDOD: can take in parameters like billion/trillion, and file name etc.
-    for(a<-1 to 10){
+    for(a<-1 to 10000){
       Console.println("Writing %s million records.", a)
-      prodDF.write.mode("append").parquet("hdfs://10.124.48.67:9000/testData10MRecords.parquet")
+      prodDF.write.mode("append").parquet("hdfs://10.124.48.67:9000/testData10BRecords.parquet")
     }
 
     sparkSession.stop()

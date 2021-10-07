@@ -78,6 +78,8 @@ In our experiment, we set up:
     428.8 M  /testData100MRecords.parquet
     root@yong1:~# hdfs dfs -du -s -h /testData1BRecords.parquet
     4.2 G  /testData1BRecords.parquet
+    root@yong1:~# hdfs dfs -du -s -h /testData10BRecords.parquet
+    41.9 G  /testData10BRecords.parquet
     ```
 Run the following command on a Spark node (e.g. master) to generate data:
 ```
@@ -149,11 +151,5 @@ Project [prod#0, ((amt#2 * (1.0 - if (NOT (cast((prod#0 <=> alcohol) as int) = 0
       +- FileScan parquet [prod#0,amt#2] Batched: true, DataFilters: [isnotnull(amt#2), (((amt#2 * (1.0 - if (NOT (cast((prod#0 <=> alcohol) as int) = 0)) 0.05 else 0..., Format: Parquet, Location: InMemoryFileIndex[hdfs://10.124.48.67:9000/testData10MRecords.parquet], PartitionFilters: [], PushedFilters: [IsNotNull(amt)], ReadSchema: struct<prod:string,amt:double>
 ```
 ### Preliminary results
-- 10 million records (parquet file with 42M data size on HDFS) were used for performance measurement as an example
-- Measurement:
-  - **Before** (Spark native UDF): 3 repeat measurements in ms: 9314, 9593, 9738 **average 9548**
-  - **After** (udf-compiler): 3 repeat measurements in ms: 5692, 5942, 5516 **average 5716**
-  - **Improvement of UDF translation: 167%**
-- ***NDP pushdown is not tested yet, will work on the datasource and storage next***
-- ***Larger dataset, 100m and 1b records etc., cause Spark to throw OOM exception, need further investigation on Spark settings and/or cluster setup*** 
-- ***Continue to identify other datasets/queries for Spark UDF translation***  
+*Caerus UDF-compiler translation is 3x faster than Spark native UDF*
+![](docs/images/perf_results.jpg)
