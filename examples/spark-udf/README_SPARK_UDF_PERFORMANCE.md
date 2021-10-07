@@ -152,4 +152,4 @@ Project [prod#0, ((amt#2 * (1.0 - if (NOT (cast((prod#0 <=> alcohol) as int) = 0
 ```
 ### Preliminary results
 *Caerus UDF-compiler translation is 3x faster than Spark native UDF*
-![Result](../../../docs/images/perf_results.jpg)
+![Result](../../docs/images/perf_results.jpg)
