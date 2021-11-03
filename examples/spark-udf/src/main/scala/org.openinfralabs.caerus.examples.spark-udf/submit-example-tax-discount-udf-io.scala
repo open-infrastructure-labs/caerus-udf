@@ -4,7 +4,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.{IntegerType, StringType, StructType}
 import org.apache.spark.util.SizeEstimator
 
-import ch.cern.sparkmeasure._
+import ch.cern.sparkmeasure.StageMetrics
 
 //1. Spark native: spark-submit --class org.openinfralabs.caerus.examples.SubmitExampleTaxDiscountUDF --master spark://10.124.48.60:7077 --driver-memory 5g target/spark-udf-1.0-SNAPSHOT.jar
 //2. Spark traslation: spark-submit --class org.openinfralabs.caerus.examples.SubmitExampleTaxDiscountUDF --master spark://10.124.48.60:7077 --driver-memory 5g --driver-class-path /root/caerus-spark-udf-compiler-from-rapids/udf-compiler/target/rapids-4-spark-udf_2.12-21.10.0-SNAPSHOT.jar --conf "spark.sql.extensions"="com.nvidia.spark.udf.Plugin" target/spark-udf-1.0-SNAPSHOT.jar
@@ -53,7 +53,7 @@ object SubmitExampleTaxDiscountUDFIO {
 
     funcBasedResDF.explain(true)
 
-    val stageMetrics = ch.cern.sparkmeasure.StageMetrics(spark)
+    val stageMetrics = StageMetrics(spark)
 
     stageMetrics.runAndMeasure(funcBasedResDF.count)
     //spark.time(print(funcBasedResDF.count))
