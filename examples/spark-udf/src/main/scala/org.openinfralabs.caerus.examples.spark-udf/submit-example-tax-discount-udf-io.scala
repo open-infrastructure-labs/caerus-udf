@@ -7,7 +7,7 @@ import org.apache.spark.util.SizeEstimator
 import ch.cern.sparkmeasure.StageMetrics
 
 //1. Spark native: spark-submit --class org.openinfralabs.caerus.examples.SubmitExampleTaxDiscountUDF --master spark://10.124.48.60:7077 --driver-memory 5g target/spark-udf-1.0-SNAPSHOT.jar
-//2. Spark traslation: spark-submit --class org.openinfralabs.caerus.examples.SubmitExampleTaxDiscountUDF --master spark://10.124.48.60:7077 --driver-memory 5g --driver-class-path /root/caerus-spark-udf-compiler-from-rapids/udf-compiler/target/rapids-4-spark-udf_2.12-21.10.0-SNAPSHOT.jar --conf "spark.sql.extensions"="com.nvidia.spark.udf.Plugin" target/spark-udf-1.0-SNAPSHOT.jar
+//2. Spark translation: spark-submit --jars /root/sparkMeasure/target/scala-2.12/spark-measure_2.12-0.18-SNAPSHOT.jar --class org.openinfralabs.caerus.examples.SubmitExampleTaxDiscountUDFIO --master spark://10.124.48.60:7077 --driver-memory 5g --driver-class-path  /root/caerus-spark-udf-compiler-from-rapids/udf-compiler/target/rapids-4-spark-udf_2.12-21.10.0-SNAPSHOT.jar --conf "spark.sql.extensions"="com.nvidia.spark.udf.Plugin" target/spark-udf-1.0-SNAPSHOT.jar
 object SubmitExampleTaxDiscountUDFIO {
 
   def main(args: Array[String]): Unit = {
@@ -55,8 +55,8 @@ object SubmitExampleTaxDiscountUDFIO {
 
     val stageMetrics = StageMetrics(spark)
 
-    stageMetrics.runAndMeasure(funcBasedResDF.count)
-    //spark.time(print(funcBasedResDF.count))
+    //stageMetrics.runAndMeasure(funcBasedResDF.count)
+    stageMetrics.runAndMeasure(spark.time(print(funcBasedResDF.count)))
 
 
 
