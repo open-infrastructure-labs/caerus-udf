@@ -18,7 +18,9 @@ object DataGenOrdered {
 
     val prodDF = spark.read.parquet("hdfs://10.124.48.67:9000/testData100MRecords.parquet")
 
-    prodDF.repartition(1).write.partitionBy("amt").format("parquet").save("hdfs://10.124.48.67:9000/testData100MRecords_OrderedByAmt.parquet")
+    val orderedDF = prodDF.orderBy("amt")
+
+    orderedDF.repartition(1).write.format("parquet").save("hdfs://10.124.48.67:9000/testData100MRecords_OrderedByAmt.parquet")
 
     spark.stop()
   }
