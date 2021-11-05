@@ -16,11 +16,11 @@ object DataGenOrdered {
       //.config("spark.sql.extensions", "com.nvidia.spark.udf.Plugin")
       .getOrCreate()
 
-    val prodDF = spark.read.parquet("hdfs://10.124.48.67:9000/testData100MRecords.parquet")
+    val prodDF = spark.read.parquet("hdfs://10.124.48.67:9000/testData10BRecords.parquet")
 
     val orderedDF = prodDF.orderBy("amt")
 
-    orderedDF.repartition(1).write.format("parquet").save("hdfs://10.124.48.67:9000/testData100MRecords_OrderedByAmt.parquet")
+    orderedDF.repartition(1).write.format("parquet").save("hdfs://10.124.48.67:9000/testData10BRecords_OrderedByAmt1.parquet")
 
     spark.stop()
   }

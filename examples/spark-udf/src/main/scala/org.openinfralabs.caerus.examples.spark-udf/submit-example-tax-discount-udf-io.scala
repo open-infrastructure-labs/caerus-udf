@@ -20,7 +20,7 @@ object SubmitExampleTaxDiscountUDFIO {
       .getOrCreate()
 
     // TODO: can take parameters in
-    val prodDF = spark.read.parquet("hdfs://10.124.48.67:9000/testData1BRecords_amtSorted1.parquet")
+    val prodDF = spark.read.parquet("hdfs://10.124.48.67:9000/testData10BRecords_OrderedByAmt1.parquet")
 
     prodDF.count
 
@@ -49,7 +49,7 @@ object SubmitExampleTaxDiscountUDFIO {
     spark.udf.register("amtUDF", (amt: Double) => {
       amt
     })
-    val funcBasedResDF =  spark.sql("select prod, taxAndDiscountF(prod, amt) from  global_temp.products where amtUDF(amt)<15.0")
+    val funcBasedResDF =  spark.sql("select prod, taxAndDiscountF(prod, amt) from  global_temp.products where amtUDF(amt)<5.0")
 
     funcBasedResDF.explain(true)
 
