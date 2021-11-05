@@ -15,19 +15,19 @@ Via UDF compiler translation of UDFs, we hope the PushedFilters list will be for
 
 Other than UDF translation, predicate pushdown also has special requirements on the source data and NDP capability in storage (see below). 
 
-To summerize, in order for Spark to pushdown predicate/filter, it must meet following conditions
+To summarize, in order for Spark to pushdown predicate/filter, it must meet following conditions
   - Physical plan must contain PushedFilters
   - Data source must support pushdown – for native data source, only columnar type data sources like parquet support this operation
   - Data source must be ‘filterable’  --- min-max etc, see parquet-cli tool results , data transformation (ETL) might be needed before query
   - Any calculations beyond basic stats in the data source cannot be pushed down to storage, unless a custom datasource is implemented on Spark side and a NDP is implemented on the storage side. e.g. Caerus NDP, and certain database engines.  
 
-For generic introduction of Spark UDF performance, please see ![Caerus Spark UDF Performance Improvement](README_SPARK_UDF_PERFORMANCE.md) for more details
+For generic introduction of Spark UDF performance, please see [Caerus Spark UDF Performance Improvement](README_SPARK_UDF_PERFORMANCE.md) for more details
 
 ## How to measure UDF performance using udf-compiler and tax calculation UDF for I/O reduction
 ### Steps to prepare test bed and data
-#### Step 1 - 3: Same as before, see ![Caerus Spark UDF Performance Improvement](README_SPARK_UDF_PERFORMANCE.md) for more details
+#### Step 1 - 3: Same as before, see [Caerus Spark UDF Performance Improvement](README_SPARK_UDF_PERFORMANCE.md) for more details
 
-#### Step 4: clone and build SparkMeasure from CERN (the European Organization for Nuclear Research) github
+#### Step 4: clone and build SparkMeasure from CERN (The European Organization for Nuclear Research) github
 ```
 > git clone git@github.com:cerndb/sparkMeasure.git
 > sbt clean package
@@ -260,7 +260,7 @@ shuffleRecordsWritten => 58
 ### Preliminary results
 *Caerus UDF-compiler translation has up to 3.3x Network I/O Reduction than Spark native UDF*
 
-Raw data:
+Spark measurement (based on the ordered data with 10 billion rows, see detail SQL query, data transformation etc. in the source code):
  - Before (Spark native UDF): 6321 ms query time, 7978193 bytes read
  - After (UDF Compilation): 2180 ms query time, 2428777 bytes read
  - I/O Reduction: 7978193/2428777 = 3.3x
