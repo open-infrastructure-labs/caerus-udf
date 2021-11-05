@@ -17,6 +17,11 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <spark.version>3.1.1</spark.version>
+        <!--sparkMeasure can be disabled if not needed -->
+        <cern.sparkMeasure.path>/root/sparkMeasure/target/scala-2.12/spark-measure_2.12-0.18-SNAPSHOT.jar</cern.sparkMeasure.path>
+        <!--macros is for debug only, can be enabled it if needed
+        <spark.sql.macros.path>/home/ubuntu/spark-sql-macros/sql/target/scala-2.12/spark-sql-macros_2.12.10_0.1.0-SNAPSHOT.jar</spark.sql.macros.path>
+        -->
     </properties>
 
     <dependencies>
@@ -30,6 +35,24 @@
             <artifactId>spark-sql_${scala.compat.version}</artifactId>
             <version>${spark.version}</version>
         </dependency>
+        <!--spark measure can be disabled if not needed -->
+        <dependency>
+            <groupId>ch.cern.sparkmeasure</groupId>
+            <artifactId>spark-measure_2.12</artifactId>
+            <version>0.18-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${cern.sparkMeasure.path}</systemPath>
+        </dependency>
+
+        <!--macros is for debug only, ca be enabled it if needed
+        <dependency>
+            <groupId>org.openinfralabs.caerus</groupId>
+            <artifactId>spark-sql-macros</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${spark.sql.macros.path}</systemPath>
+        </dependency>
+        -->
     </dependencies>
 
     <build>
