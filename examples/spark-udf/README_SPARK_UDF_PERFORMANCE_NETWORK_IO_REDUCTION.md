@@ -35,7 +35,7 @@ For generic introduction of Spark UDF performance, please see [Caerus Spark UDF 
 #### Step 5: Transform parquet data into 'ordered' data (for different sizes of data, 10 million, 100 million, 1 billion and 10 billion rows of data).
 Note: for 10 billion row of data, the transformation can take up to 3 hours
 ```
-spark-submit --class org.openinfralabs.caerus.examples.DataGenOrdered --master spark://10.124.48.60:7077 spark-udf-1.0-SNAPSHOT.jar
+spark-submit --class org.openinfralabs.caerus.examples.DataGenOrdered --num-executors 2 --executor-memory 14g --executor-cores 4   --master spark://10.124.48.60:7077 target/spark-udf-1.0-SNAPSHOT.jar
 ```
 
 #### Step 6: Verify data are ordered
