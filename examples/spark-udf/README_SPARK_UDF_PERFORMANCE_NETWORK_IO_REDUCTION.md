@@ -261,7 +261,13 @@ shuffleRecordsWritten => 58
 **Caerus UDF-compiler translation has up to 3.3x Network I/O Reduction than Spark native UDF**
 
 Spark measurement (based on the ordered data with 10 billion rows, see detail SQL query, data transformation etc. in the source code):
- - Before (Spark native UDF): 6321 ms query time, 7978193 bytes read
- - After (UDF Compilation): 2180 ms query time, 2428777 bytes read
- - I/O Reduction: 7978193/2428777 = 3.3x
- - Query time Speed up: 6321/2180 = 2.8x
+ - Before (Spark native UDF): 6475 ms (+/- 363) query time, 7978193 bytes read 
+   - raw data
+     - query time in ms: 6321,6923,6075,6583
+     - bytes read: 7978193, 7978193, 7978193, 7978193
+ - After (UDF Compilation): 1991 ms (+/- 127) query time, 2428777 bytes read 
+   - raw data
+     - query time in ms: 2180, 1915, 1951, 1918
+     - bytes read: 2428777, 2428777, 2428777, 2428777
+ - **I/O Reduction: 7978193/2428777 = 3.3x**
+ - **Query time Speed up: 6475/1991 = 3.2x**
