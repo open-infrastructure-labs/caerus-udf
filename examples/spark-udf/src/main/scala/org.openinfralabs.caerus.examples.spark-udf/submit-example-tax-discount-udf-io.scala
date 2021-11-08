@@ -49,7 +49,15 @@ object SubmitExampleTaxDiscountUDFIO {
     spark.udf.register("amtUDF", (amt: Double) => {
       amt
     })
+
+    spark.udf.register("isAmtLessThan5", (amt: Double) => {
+      amt<5.0
+    })
+
+
     val funcBasedResDF =  spark.sql("select prod, taxAndDiscountF(prod, amt) from  global_temp.products where amtUDF(amt)<5.0")
+
+    //val funcBasedResDF =  spark.sql("select prod, taxAndDiscountF(prod, amt) from  global_temp.products where isAmtLessThan5(amt)")
 
     funcBasedResDF.explain(true)
 
