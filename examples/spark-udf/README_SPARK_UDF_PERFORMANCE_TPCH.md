@@ -416,7 +416,7 @@ shuffleRecordsWritten => 344
 
 ```
 
-- ** Get query time spent for before and after:
+- ** Get query time spent for before and after**:
   - get time spent from TIMES.text: root@master:~/tpch-spark# cat TIMES.txt
 ```
 root@master:~/tpch-spark# cat TIMES.txt
@@ -441,5 +441,5 @@ Spark measurement (based on the ordered data of TPCH 100 GB dataset with Q06):
    - raw data
      - query time in seconds: 23.89324512, 23.60451317, 24.83885574
      - bytes read: 1536960970 (1465.0 MB), 1536960970 (1465.0 MB), 1536960970 (1465.0 MB)
- - **I/O Reduction: 8629567890/1536960970 = 5.61x**
- - **Query time Speed up: 87.833/24.112 = 3.64x**
+ - **I/O Reduction**: 8629567890/1536960970 = **5.61x**
+ - **Query time Speed up**: 87.833/24.112 = **3.64x**
