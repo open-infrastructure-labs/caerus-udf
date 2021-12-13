@@ -208,8 +208,8 @@ run before-after and take the spark time from the log
 - **Before - Spark native UDF**
 
 Abstract from below:
-- recordsRead => 1200075804
-- bytesRead => 8629567890 (8.0 GB)
+  - recordsRead => 1200075804
+  - bytesRead => 8629567890 (8.0 GB)
 ```
 root@master:~/tpch-spark# spark-submit --jars /root/sparkMeasure/target/scala-2.12/spark-measure_2.12-0.18-SNAPSHOT.jar  --class "main.scala.TpchQuery" --master spark://10.124.48.60:7077 target/scala-2.12/spark-tpc-h-queries_2.12-1.0.jar 06
 .....
@@ -416,7 +416,7 @@ shuffleRecordsWritten => 344
 
 ```
 
-- ** Get query time spent for before and after**:
+- **Get query time spent for before and after**:
   - get time spent from TIMES.text: root@master:~/tpch-spark# cat TIMES.txt
 ```
 root@master:~/tpch-spark# cat TIMES.txt
