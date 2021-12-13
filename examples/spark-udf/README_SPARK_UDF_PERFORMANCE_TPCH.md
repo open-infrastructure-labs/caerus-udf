@@ -20,8 +20,8 @@ The Caerus UDF Compiler can achieve query time saving and I/O reduction via two 
     - Other NDP support, like Caerus NDP, database NDP etc.
 
 So for the TPCH Q06 test, we will need to do two things:
-    - Spark side: make certain UDFs within the Q06 test (like wrap shipdate into a UDF), these UDFs are also part of the filter operation. To make sure the UDF indeed has correct translation and query plan (to pushdown)
-    - Data source side: using Spark to do ETL to the original generated TPCH data that is in the text form (CSV files), change to ordered parquet files. The ordered parquet file (lineitem data) is currently ordered by the shipdate, so that Q06 can achieve the I/O reduction   
+- Spark side: make certain UDFs within the Q06 test (like wrap shipdate into a UDF), these UDFs are also part of the filter operation. To make sure the UDF indeed has correct translation and query plan (to pushdown)
+- Data source side: using Spark to do ETL to the original generated TPCH data that is in the text form (CSV files), change to ordered parquet files. The ordered parquet file (lineitem data) is currently ordered by the shipdate, so that Q06 can achieve the I/O reduction   
 
 
 ## How to measure UDF performance and I/O reduction for TPCH tests (pick Q06 as an example)
@@ -39,7 +39,8 @@ In our experiment, we set up:
 > $HADOOP_HOME/bin/hdfs dfs -put -f $LOCAL_DATA_PATH/$fileName/*  ${HDFS_DATA_PATH}/$tableName/
   > hdfs dfs -put -f spark-warehouse/tpch.db/*.tbl hdfs://10.124.48.67:9000/tpch_data100 
 ```
-### Step 3: using Saprk to do ETL to change data to ordered parquet files. To simplify, since Q06 only targets the largest dataset in TPCH "lineitem", so we just make the transformation only on this object file, and we will only order the "shipdate" column in the data. 
+### Step 3: using Saprk to do ETL to change data to ordered parquet files
+To simplify, since Q06 only targets the largest dataset in TPCH "lineitem", so we just make the transformation only on this object file, and we will only order the "shipdate" column in the data. 
 Using spark-shell (see example below) or spark-submit to run ETL on the raw csv data
 - prepare "lineitem" dataframe: either load or copy-paste the file content of "TpchSchemaProvider.scala" under the above repo: https://github.com/ssavvides/tpch-spark
 - write the dataframe to a parquet file
@@ -203,8 +204,8 @@ root@ubuntu1804:/home/ubuntu/openinfralabs/caerus-udf/examples/spark-udf#
 ```
 
 ### Steps to run the performance tests
-#### run before-after and take the spark time from the log 
-**Before - Spark native UDF**
+run before-after and take the spark time from the log 
+- **Before - Spark native UDF**
 
 Abstract from below:
 - recordsRead => 1200075804
@@ -302,10 +303,11 @@ shuffleRecordsWritten => 344
 
 ```
 
-**After - udf-compiler for auto translation**
+- **After - udf-compiler for auto translation**
+
 Abstract from below:
-- recordsRead => 189193816
-- bytesRead => 1536960970 (1465.0 MB)
+  - recordsRead => 189193816
+  - bytesRead => 1536960970 (1465.0 MB)
 
 ```
 root@master:~/tpch-spark#  spark-submit --class "main.scala.TpchQuery" --jars /root/sparkMeasure/target/scala-2.12/spark-measure_2.12-0.18-SNAPSHOT.jar  
@@ -414,8 +416,8 @@ shuffleRecordsWritten => 344
 
 ```
 
-** Get query time spent for before and after:
-- get time spent from TIMES.text: root@master:~/tpch-spark# cat TIMES.txt
+- ** Get query time spent for before and after:
+  - get time spent from TIMES.text: root@master:~/tpch-spark# cat TIMES.txt
 ```
 root@master:~/tpch-spark# cat TIMES.txt
 Q06     23.60451317
